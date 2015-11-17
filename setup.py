@@ -36,6 +36,7 @@ history = open('CHANGES.rst').read()
 tests_require = [
     'check-manifest>=0.25',
     'coverage>=4.0',
+    'invenio-db[mysql,postgresql]>=1.0.0a6',
     'isort>=4.2.2',
     'pep257>=0.7.0',
     'pytest-cache>=1.0',
@@ -46,7 +47,7 @@ tests_require = [
 
 extras_require = {
     'docs': [
-        "Sphinx>=1.3",
+        'Sphinx>=1.3',
     ],
     'tests': tests_require,
 }
@@ -61,6 +62,9 @@ setup_requires = [
 
 install_requires = [
     'Flask-BabelEx>=0.9.2',
+    'invenio-pidstore>=1.0.0a2',
+    'invenio-records>=1.0.0a4',
+    'sickle>=0.5.0',
 ]
 
 packages = find_packages()
@@ -119,7 +123,17 @@ setup(
     zip_safe=False,
     include_package_data=True,
     platforms='any',
-    entry_points={},
+    entry_points={
+        'invenio_base.apps': [
+            'invenio_openaire = invenio_openaire:InvenioOpenAIRE',
+        ],
+        'invenio_celery.tasks': [
+            'invenio_openaire = invenio_openaire.tasks',
+        ],
+        'invenio_i18n.translations': [
+            'invenio_openaire = invenio_openaire',
+        ],
+    },
     extras_require=extras_require,
     install_requires=install_requires,
     setup_requires=setup_requires,

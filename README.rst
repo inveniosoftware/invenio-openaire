@@ -41,7 +41,7 @@
         :target: https://github.com/inveniosoftware/invenio-openaire/blob/master/LICENSE
 
 
-Invenio module providing integration between Invenio repositories and the OpenAIRE service.
+Invenio module providing integration between Invenio repositories and OpenAIRE.
 
 *This is an experimental developer preview release.*
 

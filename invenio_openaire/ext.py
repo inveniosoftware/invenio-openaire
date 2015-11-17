@@ -26,24 +26,18 @@
 
 from __future__ import absolute_import, print_function
 
-from flask_babelex import gettext as _
-
-from .views import blueprint
-
 
 class InvenioOpenAIRE(object):
     """Invenio-OpenAIRE extension."""
 
     def __init__(self, app=None):
         """Extension initialization."""
-        _('A translation string')
         if app:
             self.init_app(app)
 
     def init_app(self, app):
         """Flask application initialization."""
         self.init_config(app)
-        app.register_blueprint(blueprint)
         app.extensions['invenio-openaire'] = self
 
     def init_config(self, app):
@@ -52,3 +46,7 @@ class InvenioOpenAIRE(object):
             "OPENAIRE_BASE_TEMPLATE",
             app.config.get("BASE_TEMPLATE",
                            "invenio_openaire/base.html"))
+
+        app.config.setdefault(
+            "OPENAIRE_OAIPMH_ENDPOINT",
+            "http://api.openaire.eu/oai_pmh")

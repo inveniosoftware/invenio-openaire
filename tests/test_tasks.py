@@ -27,25 +27,21 @@
 
 from __future__ import absolute_import, print_function
 
-from flask import Flask
-
-from invenio_openaire import InvenioOpenAIRE
-
-
-def test_version():
-    """Test version import."""
-    from invenio_openaire import __version__
-    assert __version__
+from invenio_openaire.tasks import create_authority_record, harvest_fundref, \
+    harvest_openaire_projects
 
 
-def test_init():
-    """Test extension initialization."""
-    app = Flask('testapp')
-    ext = InvenioOpenAIRE(app)
-    assert 'invenio-openaire' in app.extensions
+def test_harvest_openaire_projects(app):
+    """Test harvest_openaire_projects."""
+    with app.app_context():
+        harvest_openaire_projects()
 
-    app = Flask('testapp')
-    ext = InvenioOpenAIRE()
-    assert 'invenio-openaire' not in app.extensions
-    ext.init_app(app)
-    assert 'invenio-openaire' in app.extensions
+
+def test_harvest_fundref(app):
+    """Test harvest_openaire_projects."""
+    harvest_fundref()
+
+
+def test_create_authority_record(app):
+    """Test create_authority_record."""
+    create_authority_record(None, None)
