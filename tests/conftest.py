@@ -33,8 +33,11 @@ import tempfile
 
 import pytest
 from flask import Flask
+from flask_celeryext import create_celery_app
 from flask_cli import FlaskCLI
+from invenio_celery import InvenioCelery
 from invenio_db import InvenioDB, db
+from invenio_jsonschemas import InvenioJSONSchemas
 from invenio_pidstore import InvenioPIDStore
 from invenio_records import InvenioRecords
 from sqlalchemy_utils.functions import create_database, database_exists, \
@@ -53,8 +56,10 @@ def app(request):
     FlaskCLI(app)
     InvenioDB(app)
     InvenioRecords(app)
+    InvenioCelery(app)
     InvenioPIDStore(app)
     InvenioOpenAIRE(app)
+    InvenioJSONSchemas(app)
 
     app.config.update(
         SQLALCHEMY_DATABASE_URI=os.environ.get(
@@ -63,8 +68,11 @@ def app(request):
         CELERY_RESULT_BACKEND="cache",
         CELERY_CACHE_BACKEND="memory",
         CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+        OPENAIRE_OAI_LOCAL_SOURCE='invenio_openaire/data/oaire_local.sqlite',
         TESTING=True,
     )
+
+    create_celery_app(app)
 
     with app.app_context():
         if not database_exists(str(db.engine.url)):

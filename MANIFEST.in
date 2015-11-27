@@ -22,18 +22,9 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-
-# TODO: Generate this manifest file by running the following commands:
-#
-#  git init
-#  git add -A
-#  pip install -e .[all]
-#  check-manifest -u
-
 # Check manifest will not automatically add these two files:
 include .dockerignore
 include .editorconfig
-include .tx/config
 recursive-include invenio_openaire *.po
 recursive-include invenio_openaire *.mo
 
@@ -50,4 +41,11 @@ recursive-include docs *.rst
 recursive-include docs Makefile
 recursive-include examples *.py
 recursive-include invenio_openaire *.html
+recursive-include invenio_openaire *.json
+recursive-include invenio_openaire *.rdf
+recursive-include invenio_openaire *.rst
+recursive-include invenio_openaire *.txt
 recursive-include tests *.py
+recursive-include tests *.rdf
+recursive-include tests *.sqlite
+recursive-include tests *.txt

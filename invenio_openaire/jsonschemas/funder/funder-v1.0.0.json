@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "id": "http://inveniosoftware.org/schemas/funder/funder-v1.0.0.json",
+  "type": "object",
+  "properties": {
+    "doi": { "type": "string" },
+    "alternateIdentifiers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "scheme": { "type": "string" }
+        }
+      }
+    },
+    "title": { "type": "string" },
+    "acronyms": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string" }
+    },
+    "country": { "type": "string" },
+    "type": { "type": "string" },
+    "subtype": { "type": "string" },
+    "parent": {
+      "type": "object",
+      "properties": {
+        "$ref": { "type": "string" }
+      }
+    }
+  }
+}

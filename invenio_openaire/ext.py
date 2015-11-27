@@ -26,6 +26,8 @@
 
 from __future__ import absolute_import, print_function
 
+from . import config
+
 
 class InvenioOpenAIRE(object):
     """Invenio-OpenAIRE extension."""
@@ -42,11 +44,6 @@ class InvenioOpenAIRE(object):
 
     def init_config(self, app):
         """Initialize configuration."""
-        app.config.setdefault(
-            "OPENAIRE_BASE_TEMPLATE",
-            app.config.get("BASE_TEMPLATE",
-                           "invenio_openaire/base.html"))
-
-        app.config.setdefault(
-            "OPENAIRE_OAIPMH_ENDPOINT",
-            "http://api.openaire.eu/oai_pmh")
+        for k in dir(config):
+            if k.startswith("OPENAIRE_"):
+                app.config.setdefault(k, getattr(config, k))

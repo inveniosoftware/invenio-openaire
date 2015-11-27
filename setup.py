@@ -36,13 +36,16 @@ history = open('CHANGES.rst').read()
 tests_require = [
     'check-manifest>=0.25',
     'coverage>=4.0',
+    'invenio-celery>=1.0.0a3',
     'invenio-db[mysql,postgresql]>=1.0.0a6',
     'isort>=4.2.2',
+    'jsonschema>=2.5.1',
+    'mock>=1.3.0',
     'pep257>=0.7.0',
+    'pytest>=2.8.0',
     'pytest-cache>=1.0',
     'pytest-cov>=1.8.0',
     'pytest-pep8>=1.0.6',
-    'pytest>=2.8.0',
 ]
 
 extras_require = {
@@ -63,8 +66,13 @@ setup_requires = [
 install_requires = [
     'Flask-BabelEx>=0.9.2',
     'invenio-pidstore>=1.0.0a2',
-    'invenio-records>=1.0.0a4',
+    'invenio-records>=1.0.0a8',
+    'invenio-jsonschemas>=1.0.0a2',
+    'jsonresolver>=0.1.1',
+    'jsonref>=0.1',
+    'requests>=2.9.1',
     'sickle>=0.5.0',
+    'six>=1.10.0'
 ]
 
 packages = find_packages()
@@ -133,6 +141,12 @@ setup(
         'invenio_i18n.translations': [
             'invenio_openaire = invenio_openaire',
         ],
+        'invenio_jsonschemas.schemas': [
+            'invenio_openaire = invenio_openaire.jsonschemas',
+        ],
+        'invenio_records.jsonresolver': [
+            'invenio_openaire_funders = invenio_openaire.resolvers.funders',
+        ]
     },
     extras_require=extras_require,
     install_requires=install_requires,

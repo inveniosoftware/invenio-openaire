@@ -21,27 +21,54 @@
 # In applying this license, CERN does not
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
-
-
-"""Module tests."""
+"""Harvesting task tests."""
 
 from __future__ import absolute_import, print_function
 
-from invenio_openaire.tasks import create_authority_record, harvest_fundref, \
-    harvest_openaire_projects
+from invenio_pidstore.models import PersistentIdentifier
+from invenio_records.models import RecordMetadata
+
+from invenio_openaire.loaders import GeoNamesResolver, LocalFundRefLoader, \
+    LocalOAIRELoader
+from invenio_openaire.tasks import harvest_fundref, harvest_openaire_projects
 
 
 def test_harvest_openaire_projects(app):
     """Test harvest_openaire_projects."""
     with app.app_context():
-        harvest_openaire_projects()
+        # Use local OpenAIRE loader
+        loader = LocalOAIRELoader(source='tests/testdata/openaire_test.sqlite')
+        harvest_openaire_projects(loader=loader)
+        assert PersistentIdentifier.query.count() == 10
+        assert RecordMetadata.query.count() == 10
 
 
 def test_harvest_fundref(app):
     """Test harvest_openaire_projects."""
-    harvest_fundref()
+    with app.app_context():
+        # Use local FundRef loader
+        source = 'tests/testdata/fundref_test.rdf'
+        # Setup the fixed lookup dictionary for country code resolver
+        cc_resolver = GeoNamesResolver(cc_data={'1': 'US', '2': 'CH'})
+        loader = LocalFundRefLoader(source=source,
+                                    cc_resolver=cc_resolver)
+        harvest_fundref(loader=loader)
+        assert PersistentIdentifier.query.count() == 5
+        assert RecordMetadata.query.count() == 5
 
 
-def test_create_authority_record(app):
-    """Test create_authority_record."""
-    create_authority_record(None, None)
+def test_harvest_all(app):
+    """Test harvest_openaire_projects."""
+    with app.app_context():
+        loader = LocalOAIRELoader(source='tests/testdata/openaire_test.sqlite')
+        harvest_openaire_projects(loader=loader)
+        assert PersistentIdentifier.query.count() == 10
+        assert RecordMetadata.query.count() == 10
+        source = 'tests/testdata/fundref_test.rdf'
+        # Setup the fixed lookup dictionary for country code resolver
+        cc_resolver = GeoNamesResolver(cc_data={'1': 'US', '2': 'CH'})
+        loader = LocalFundRefLoader(source=source,
+                                    cc_resolver=cc_resolver)
+        harvest_fundref(loader=loader)
+        assert PersistentIdentifier.query.count() == 15
+        assert RecordMetadata.query.count() == 15

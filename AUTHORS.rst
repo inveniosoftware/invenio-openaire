@@ -27,4 +27,4 @@ Authors
 
 Invenio module providing integration between Invenio repositories and the OpenAIRE service.
 
-- CERN <info@invenio-software.org>
+- Krzysztof Nowak <k.nowak@cern.ch>
