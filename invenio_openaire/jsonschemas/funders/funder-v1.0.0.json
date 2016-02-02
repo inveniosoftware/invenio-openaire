@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema#",
-  "id": "http://inveniosoftware.org/schemas/funder/funder-v1.0.0.json",
+  "id": "http://inveniosoftware.org/schemas/funders/funder-v1.0.0.json",
   "type": "object",
   "properties": {
     "doi": { "type": "string" },
@@ -15,7 +15,7 @@
         }
       }
     },
-    "title": { "type": "string" },
+    "name": { "type": "string" },
     "acronyms": {
       "type": "array",
       "uniqueItems": true,

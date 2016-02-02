@@ -55,7 +55,7 @@ def register_funder(funder_json):
     """Register the funder JSON in records and create a PID."""
     record = Record.create(funder_json)
     PersistentIdentifier.create(
-        'recid',
+        'fundr',
         funder_json['doi'],
         object_type='rec',
         object_uuid=record.id,
@@ -69,7 +69,7 @@ def register_grant(grant_json):
     """Register the grant JSON in records and create a PID."""
     record = Record.create(grant_json)
     PersistentIdentifier.create(
-        'recid',
+        'grant',
         grant_json['internal_id'],
         object_type='rec',
         object_uuid=record.id,

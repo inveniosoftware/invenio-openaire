@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema#",
-  "id": "http://inveniosoftware.org/schemas/grant/grant-v1.0.0.json",
+  "id": "http://inveniosoftware.org/schemas/grants/grant-v1.0.0.json",
   "type": "object",
   "properties": {
     "internal_id": {"type": "string"},
@@ -8,7 +8,7 @@
       "type": "object",
       "properties": {
         "oai_id": { "type": "string" },
-        "euroepo": { "type": "string" }
+        "eurepo": { "type": "string" }
       }
     },
     "code": { "type": "string" },

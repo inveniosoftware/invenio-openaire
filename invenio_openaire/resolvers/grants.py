@@ -34,7 +34,7 @@ from werkzeug.routing import Rule
 def resolve_grant_endpoint(doi_code, grant_code):
     """Resolve the OpenAIRE grant."""
     pid_value = "10.13039/{0}/grants/{1}".format(doi_code, grant_code)
-    _, record = Resolver(pid_type='recid', object_type='rec',
+    _, record = Resolver(pid_type='grant', object_type='rec',
                          getter=Record.get_record).resolve(pid_value)
     return record
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -21,19 +21,5 @@
 # In applying this license, CERN does not
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
-"""Resolve JSON for FundRef funders."""
 
-from __future__ import absolute_import, print_function
-
-import jsonresolver
-from invenio_pidstore.resolver import Resolver
-from invenio_records.api import Record
-
-
-@jsonresolver.route('/10.13039/<doi_code>', host='dx.doi.org')
-def resolve_funder(doi_code):
-    """Resolve the JsonRef funder."""
-    pid_value = "10.13039/{}".format(doi_code)
-    _, record = Resolver(pid_type='fundr', object_type='rec',
-                         getter=Record.get_record).resolve(pid_value)
-    return record
+"""OpenAIRE elastic search mappings module."""

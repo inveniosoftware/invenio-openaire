@@ -117,10 +117,10 @@ def test_funder_ep_resolving(app):
             'name': 'Bar',
         }
         r1 = R.create(json1)
-        PID.create('recid', json1['internal_id'], object_type='rec',
+        PID.create('fundr', json1['internal_id'], object_type='rec',
                    object_uuid=r1.id, status=PIDStatus.REGISTERED)
         r2 = R.create(json2)
-        PID.create('recid', json2['internal_id'], object_type='rec',
+        PID.create('fundr', json2['internal_id'], object_type='rec',
                    object_uuid=r2.id, status=PIDStatus.REGISTERED)
         assert r2.replace_refs()['parent'] == json1
 
@@ -130,7 +130,7 @@ def test_funder_schema_ep_resolving(app):
     with app.app_context():
         app.config.update(JSONSCHEMAS_HOST='inveniosoftware.org')
         json_valid = {
-            '$schema': {'$ref': 'http://inveniosoftware.org/schemas/funder/'
+            '$schema': {'$ref': 'http://inveniosoftware.org/schemas/funders/'
                                 'funder-v1.0.0.json'},
             'doi': '10.13039/001',
             'alternateIdentifiers': [],
@@ -156,7 +156,7 @@ def test_grant_schema_ep_resolving(app):
     with app.app_context():
         app.config.update(JSONSCHEMAS_HOST='inveniosoftware.org')
         json_valid = {
-            '$schema': {'$ref': 'http://inveniosoftware.org/schemas/grant/'
+            '$schema': {'$ref': 'http://inveniosoftware.org/schemas/grants/'
                                 'grant-v1.0.0.json'},
             'internal_id': '10.13039/001/grants/0001',
             'identifiers': {
