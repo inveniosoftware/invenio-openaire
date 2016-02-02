@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -21,6 +21,7 @@
 # In applying this license, CERN does not
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
+
 """Tests for OpenAIRE dataset loaders and resolvers."""
 
 from __future__ import absolute_import, print_function
@@ -36,8 +37,6 @@ from jsonresolver import JSONResolver
 from jsonresolver.contrib.jsonref import json_loader_factory
 from jsonschema.exceptions import ValidationError
 
-from invenio_openaire.loaders import GeoNamesResolver, LocalFundRefLoader, \
-    LocalOAIRELoader
 from invenio_openaire.tasks import harvest_fundref, harvest_openaire_projects
 
 
@@ -45,19 +44,14 @@ def load_funders_testdata():
     """Load the funders test data."""
     testdir = os.path.dirname(__file__)
     source = os.path.join(testdir, 'testdata/fundref_test.rdf')
-    # Setup the fixed lookup dictionary for country code resolver
-    cc_resolver = GeoNamesResolver(cc_data={'1': 'US', '2': 'CH'})
-    loader = LocalFundRefLoader(source=source,
-                                cc_resolver=cc_resolver)
-    harvest_fundref(loader=loader)
+    harvest_fundref(path=source)
 
 
 def load_grants_testdata():
     """Load the grants test data."""
     testdir = os.path.dirname(__file__)
     source = os.path.join(testdir, 'testdata/openaire_test.sqlite')
-    loader = LocalOAIRELoader(source=source)
-    harvest_openaire_projects(loader=loader)
+    harvest_openaire_projects(path=source)
 
 
 def load_all_testdata():
@@ -73,7 +67,7 @@ def test_funders_json_resolving(app):
     with app.app_context():
         load_funders_testdata()  # Load test data
         example_funder = {
-            'doi': 'http://dx.doi.org/13.13039/003',
+            'doi': 'http://dx.doi.org/10.13039/003',
             'name': 'Some funder',
             'acronyms': ['SF', ],
             'parent': {'$ref': 'http://dx.doi.org/10.13039/002'},
@@ -84,6 +78,7 @@ def test_funders_json_resolving(app):
                      'invenio_openaire.resolvers.grants'])
         loader_cls = json_loader_factory(json_resolver)
         loader = loader_cls()
+        print(PID.query.all())
         out_json = JsonRef.replace_refs(example_funder, loader=loader)
         assert out_json['parent']['name'] == 'Department of Bar'
         assert out_json['parent']['parent']['name'] == 'University of Foo'
@@ -94,7 +89,7 @@ def test_grants_json_resolving(app):
     with app.app_context():
         load_grants_testdata()
         grant_ref = {'$ref': 'http://inveniosoftware.org/10.13039/501100000923'
-                             '/grants/DP0667033'}
+                             '::DP0667033'}
         json_resolver = JSONResolver(
                 plugins=['invenio_openaire.resolvers.grants'])
         loader_cls = json_loader_factory(json_resolver)
@@ -117,64 +112,63 @@ def test_funder_ep_resolving(app):
             'name': 'Bar',
         }
         r1 = R.create(json1)
-        PID.create('recid', json1['internal_id'], object_type='rec',
+        PID.create('frdoi', json1['internal_id'], object_type='rec',
                    object_uuid=r1.id, status=PIDStatus.REGISTERED)
         r2 = R.create(json2)
-        PID.create('recid', json2['internal_id'], object_type='rec',
+        PID.create('frdoi', json2['internal_id'], object_type='rec',
                    object_uuid=r2.id, status=PIDStatus.REGISTERED)
         assert r2.replace_refs()['parent'] == json1
 
 
 def test_funder_schema_ep_resolving(app):
     """Test schema validation using entry-point registered schemas."""
-    with app.app_context():
-        app.config.update(JSONSCHEMAS_HOST='inveniosoftware.org')
-        json_valid = {
-            '$schema': {'$ref': 'http://inveniosoftware.org/schemas/funder/'
-                                'funder-v1.0.0.json'},
-            'doi': '10.13039/001',
-            'alternateIdentifiers': [],
-            'title': 'Foobar',
-            'acronyms': ['FB', 'Foo'],
-            'country': 'PL',
-            'type': 'org',
-            'subtype': 'organization',
-            'parent': {'$ref': 'http://dx.doi.org/10.13039/002'},
-        }
-        json_invalid = dict(json_valid)
-        json_invalid['acronyms'] = 'not_a_list'
-        # Should not raise validation errors
-        R.create(json_valid)
-        # Should raise validation error beucase of the field 'acronyms'
-        with pytest.raises(ValidationError) as exc_info:
-            R.create(json_invalid)
-        assert exc_info.value.instance == 'not_a_list'
+    app.config.update(JSONSCHEMAS_HOST='inveniosoftware.org')
+    json_valid = {
+        '$schema': {'$ref': 'http://inveniosoftware.org/schemas/funders/'
+                            'funder-v1.0.0.json'},
+        'doi': '10.13039/001',
+        'alternateIdentifiers': [],
+        'title': 'Foobar',
+        'acronyms': ['FB', 'Foo'],
+        'country': 'PL',
+        'type': 'org',
+        'subtype': 'organization',
+        'parent': {'$ref': 'http://dx.doi.org/10.13039/002'},
+    }
+    json_invalid = dict(json_valid)
+    json_invalid['acronyms'] = 'not_a_list'
+    # Should not raise validation errors
+    R.create(json_valid)
+    # Should raise validation error beucase of the field 'acronyms'
+    with pytest.raises(ValidationError) as exc_info:
+        R.create(json_invalid)
+    assert exc_info.value.instance == 'not_a_list'
 
 
 def test_grant_schema_ep_resolving(app):
     """Test schema validation using entry-point registered schemas."""
-    with app.app_context():
-        app.config.update(JSONSCHEMAS_HOST='inveniosoftware.org')
-        json_valid = {
-            '$schema': {'$ref': 'http://inveniosoftware.org/schemas/grant/'
-                                'grant-v1.0.0.json'},
-            'internal_id': '10.13039/001/grants/0001',
-            'identifiers': {
-                'oai_id': 'oai_id00001',
-                'eurepo': '/eurepo/id00001',
-            },
-            'code': '0001',
-            'title': 'Grant Foobar',
-            'acronym': 'GF',
-            'startdate': 'startdate',
-            'enddate': 'startdate',
-            'funder': {'$ref': 'http://dx.doi.org/10.13039/001'},
-        }
-        json_invalid = dict(json_valid)
-        json_invalid['identifiers'] = 'not_a_list'
-        # Should not raise validation errors
-        R.create(json_valid)
-        # Should raise validation error beucase of the field 'acronyms'
-        with pytest.raises(ValidationError) as exc_info:
-            R.create(json_invalid)
-        assert exc_info.value.instance == 'not_a_list'
+    app.config.update(JSONSCHEMAS_HOST='inveniosoftware.org')
+    json_valid = {
+        '$schema': {'$ref': 'http://inveniosoftware.org/schemas/grants/'
+                            'grant-v1.0.0.json'},
+        'internal_id': '10.13039/001::0001',
+        'identifiers': {
+            'oai_id': 'oai_id00001',
+            'eurepo': '/eurepo/id00001',
+        },
+        'code': '0001',
+        'title': 'Grant Foobar',
+        'acronym': 'GF',
+        'startdate': 'startdate',
+        'enddate': 'startdate',
+        'funder': {'$ref': 'http://dx.doi.org/10.13039/001'},
+    }
+    # Should not raise validation errors
+    R.create(json_valid)
+
+    # Should raise validation error because of the field 'acronyms'
+    json_invalid = dict(json_valid)
+    json_invalid['identifiers'] = 'not_an_object'
+    with pytest.raises(ValidationError) as exc_info:
+        R.create(json_invalid)
+    assert exc_info.value.instance == 'not_an_object'

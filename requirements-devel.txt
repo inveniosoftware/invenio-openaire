@@ -22,9 +22,10 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
--e git+https://github.com/inveniosoftware/invenio-pidstore.git#egg=invenio-pidstore
 -e git+https://github.com/inveniosoftware/invenio-celery.git#egg=invenio-celery
--e git+https://github.com/inveniosoftware/invenio-records.git#egg=invenio-records
 -e git+https://github.com/inveniosoftware/invenio-jsonschemas.git#egg=invenio-jsonschemas
+-e git+https://github.com/inveniosoftware/invenio-pidstore.git#egg=invenio-pidstore
+-e git+https://github.com/inveniosoftware/invenio-records-rest.git#egg=invenio-records-rest
+-e git+https://github.com/inveniosoftware/invenio-records.git#egg=invenio-records
 -e git+https://github.com/inveniosoftware/jsonresolver.git#egg=jsonresolver
 -e git+https://github.com/mloesch/sickle.git#egg=sickle

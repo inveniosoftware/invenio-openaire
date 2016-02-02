@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -31,10 +31,10 @@ from invenio_records.api import Record
 from werkzeug.routing import Rule
 
 
-def resolve_grant_endpoint(doi_code, grant_code):
+def resolve_grant_endpoint(doi_grant_code):
     """Resolve the OpenAIRE grant."""
-    pid_value = "10.13039/{0}/grants/{1}".format(doi_code, grant_code)
-    _, record = Resolver(pid_type='recid', object_type='rec',
+    pid_value = "10.13039/{0}".format(doi_grant_code)
+    _, record = Resolver(pid_type='grant', object_type='rec',
                          getter=Record.get_record).resolve(pid_value)
     return record
 
@@ -44,6 +44,6 @@ def jsonresolver_loader(url_map):
     """Resolve the OpenAIRE grant."""
     from flask import current_app
     url_map.add(Rule(
-        '/10.13039/<doi_code>/grants/<grant_code>',
+        '/10.13039/<path:doi_grant_code>',
         endpoint=resolve_grant_endpoint,
         host=current_app.config['OPENAIRE_JSONRESOLVER_GRANTS_HOST']))

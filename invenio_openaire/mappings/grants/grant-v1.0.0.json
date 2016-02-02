@@ -1,0 +1,68 @@
+{
+  "mappings": {
+    "grant-v1.0.0": {
+      "date_detection": false,
+      "numeric_detection": false,
+      "properties": {
+        "internal_id": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "code": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "title": {
+          "type": "string"
+        },
+        "acronym": {
+          "type": "string"
+        },
+        "startdate": {
+          "type": "date",
+          "ignore_malformed": true
+        },
+        "enddate": {
+          "type": "date",
+          "ignore_malformed": true
+        },
+        "funder": {
+          "type": "object",
+          "properties": {
+            "$ref" : {
+              "type": "string",
+              "index": "not_analyzed"
+            }
+          }
+        },
+        "program": {
+          "type": "string"
+        },
+        "remote_modified": {
+          "type": "date",
+          "ignore_malformed": true
+        },
+        "url": {
+          "type": "string"
+        },
+        "identifiers": {
+          "type": "object",
+          "properties": {
+            "oai_id": {
+              "type": "string",
+              "index": "not_analyzed"
+            },
+            "purl": {
+              "type": "string",
+              "index": "not_analyzed"
+            },
+            "eurepo": {
+              "type": "string",
+              "index": "not_analyzed"
+            }
+          }
+        }
+      }
+    }
+  }
+}

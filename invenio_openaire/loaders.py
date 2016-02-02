@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -21,6 +21,7 @@
 # In applying this license, CERN does not
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
+
 """OpenAIRE loader functions.
 
 None of the functions in this module create any objects in invenio-records.
@@ -43,11 +44,15 @@ import xml.etree.ElementTree as ET
 
 import requests
 from flask import current_app
+from invenio_pidstore.errors import PersistentIdentifierError
+from invenio_pidstore.resolver import Resolver
+from invenio_records.api import Record
 from lxml import etree
 from sickle import Sickle
+from six.moves.urllib.parse import quote_plus
 
 from . import __path__ as current_package
-from .errors import FunderNotFoundError
+from .errors import FunderNotFoundError, OAIRELoadingError
 
 
 class JSONSchemaURLFormatter(object):
@@ -103,38 +108,34 @@ class BaseOAIRELoader(object):
 
     def get_text_node(self, tree, xpath_str):
         """Return a text node from given XML tree given an lxml XPath."""
-        ret = tree.xpath(xpath_str, namespaces=self.namespaces)[0].text or ''
-        return ret
+        try:
+            return tree.xpath(xpath_str, namespaces=self.namespaces)[0].text \
+                or ''
+        except IndexError:  # pragma: nocover
+            return ''
 
     def get_subtree(self, tree, xpath_str):
         """Return a subtree given an lxml XPath."""
         return tree.xpath(xpath_str, namespaces=self.namespaces)
 
-    def grantxml2json(self, tree):
-        """Convert OpenAIRE grant XML into JSON."""
-        oai_id = self.get_text_node(
-            tree, '/oai:record/oai:header/oai:identifier')
-        code = self.get_text_node(
-            tree, '/oai:record/oai:metadata/oaf:entity/oaf:project/code')
-        title = self.get_text_node(
-            tree, '/oai:record/oai:metadata/oaf:entity/oaf:project/title')
-        acronym = self.get_text_node(
-            tree, '/oai:record/oai:metadata/oaf:entity/oaf:project/acronym')
-        startdate = self.get_text_node(
-            tree, '/oai:record/oai:metadata/oaf:entity/oaf:project/startdate')
-        enddate = self.get_text_node(
-            tree, '/oai:record/oai:metadata/oaf:entity/oaf:project/enddate')
-        funder_node = self.get_subtree(
-            tree, '/oai:record/oai:metadata/oaf:entity/oaf:project/'
-                  'fundingtree/funder')
-        subfunder_node = self.get_subtree(
-            tree, '/oai:record/oai:metadata/oaf:entity/oaf:project/'
-                  'fundingtree/funding_level_0')
+    def fundertree2json(self, tree, oai_id):
+        """."""
+        try:
+            tree = self.get_subtree(tree, 'fundingtree')[0]
+        except IndexError:  # pragma: nocover
+            pass
+
+        funder_node = self.get_subtree(tree, 'funder')
+        subfunder_node = self.get_subtree(tree, '//funding_level_0')
 
         funder_id = self.get_text_node(funder_node[0], './id') \
             if funder_node else None
         subfunder_id = self.get_text_node(subfunder_node[0], './id') \
             if subfunder_node else None
+        funder_name = self.get_text_node(funder_node[0], './shortname') \
+            if funder_node else ""
+        subfunder_name = self.get_text_node(subfunder_node[0], './name') \
+            if subfunder_node else ""
 
         # Try to resolve the subfunder first, on failure try to resolve the
         # main funder, on failure raise an error.
@@ -145,25 +146,73 @@ class BaseOAIRELoader(object):
             if funder_id:
                 funder_doi_url = self.funder_resolver.resolve_by_id(funder_id)
         if not funder_doi_url:
-            raise FunderNotFoundError(funder_id, subfunder_id)
+            funder_doi_url = self.funder_resolver.resolve_by_oai_id(oai_id)
+        if not funder_doi_url:
+            raise FunderNotFoundError(oai_id, funder_id, subfunder_id)
 
-        funder_obj = {'$ref': funder_doi_url}
         funder_doi = FundRefDOIResolver.strip_doi_host(funder_doi_url)
-        internal_id = "{0}/grants/{1}".format(funder_doi, code)
+        if not funder_name:
+            # Grab name from FundRef record.
+            resolver = Resolver(
+                pid_type='frdoi', object_type='rec', getter=Record.get_record)
+            try:
+                dummy_pid, funder_rec = resolver.resolve(funder_doi)
+                funder_name = funder_rec['acronyms'][0]
+            except PersistentIdentifierError:
+                raise OAIRELoadingError(
+                    "Please ensure that funders have been loaded prior to"
+                    "loading grants. Could not resolve funder {0}".format(
+                        funder_doi))
+
+        return dict(
+            doi=funder_doi,
+            url=funder_doi_url,
+            name=funder_name,
+            program=subfunder_name,
+        )
+
+    def grantxml2json(self, tree):
+        """Convert OpenAIRE grant XML into JSON."""
+        ptree = self.get_subtree(
+            tree, '/oai:record/oai:metadata/oaf:entity/oaf:project')[0]
+
+        oai_id = self.get_text_node(
+            tree, '/oai:record/oai:header/oai:identifier')
+        modified = self.get_text_node(
+            tree, '/oai:record/oai:header/oai:datestamp')
+        url = self.get_text_node(ptree, 'websiteurl')
+        code = self.get_text_node(ptree, 'code')
+        title = self.get_text_node(ptree, 'title')
+        acronym = self.get_text_node(ptree, 'acronym')
+        startdate = self.get_text_node(ptree, 'startdate')
+        enddate = self.get_text_node(ptree, 'enddate')
+
+        funder = self.fundertree2json(ptree, oai_id)
+
+        internal_id = "{0}::{1}".format(funder['doi'], code)
+        eurepo_id = \
+            "info:eu-repo/grantAgreement/{funder}/{program}/{code}/".format(
+                funder=quote_plus(funder['name']),
+                program=quote_plus(funder['program']),
+                code=quote_plus(code), )
 
         ret_json = {
             '$schema': {'$ref': self.schema_formatter.schema_url},
             'internal_id': internal_id,
             'identifiers': {
-                'oai_id': oai_id,
-                'eurepo': '/eurepo/id',
+                'oaf': oai_id,
+                'eurepo': eurepo_id,
+                'purl': url if url.startswith("http://purl.org/") else None,
             },
             'code': code,
             'title': title,
             'acronym': acronym,
             'startdate': startdate,
             'enddate': enddate,
-            'funder': funder_obj,
+            'funder': {'$ref': funder['url']},
+            'program': funder['program'],
+            'url': url,
+            'remote_modified': modified,
         }
         return ret_json
 
@@ -218,9 +267,13 @@ class RemoteOAIRELoader(BaseOAIRELoader):
         records = self.client.ListRecords(metadataPrefix='oaf',
                                           set='projects')
         for rec in records:
-            tree = etree.fromstring(rec.raw)
-            json = self.grantxml2json(tree)
-            yield json
+            try:
+                tree = etree.fromstring(rec.raw)
+                json = self.grantxml2json(tree)
+                yield json
+            except FunderNotFoundError as e:
+                current_app.logger.warning("Funder '{0}' not found.".format(
+                    e.funder_id))
 
 
 class GeoNamesResolver(object):
@@ -285,11 +338,27 @@ class BaseFundRefLoader(object):
         """Convert a FundRef 'skos:Concept' node into JSON."""
         doi = FundRefDOIResolver.strip_doi_host(self.get_attrib(node,
                                                 'rdf:about'))
+        oaf_id = FundRefDOIResolver().resolve_by_doi(
+            "http://dx.doi.org/" + doi)
         name = node.find('./skosxl:prefLabel/skosxl:Label/skosxl:literalForm',
                          namespaces=self.namespaces).text
         acronyms = [acronym.text for acronym in node.findall(
             './skosxl:altLabel/skosxl:Label/skosxl:literalForm',
             namespaces=self.namespaces)]
+
+        # Extract acronyms
+        acronyms = []
+        for n in node.findall('./skosxl:altLabel/skosxl:Label',
+                              namespaces=self.namespaces):
+            usagenode = n.find('./fref:usageFlag', namespaces=self.namespaces)
+            if usagenode is not None:
+                if self.get_attrib(usagenode, 'rdf:resource') == \
+                        "http://data.fundref.org/vocabulary/abbrevName":
+                    label = n.find('./skosxl:literalForm',
+                                   namespaces=self.namespaces)
+                    if label is not None:
+                        acronyms.append(label.text)
+
         parent_node = node.find('./skos:broader', namespaces=self.namespaces)
         if parent_node is None:
             parent = {}
@@ -306,15 +375,25 @@ class BaseFundRefLoader(object):
                             namespaces=self.namespaces).text
         country_elem = node.find('./svf:country', namespaces=self.namespaces)
 
+        modified_elem = node.find('./dct:modified', namespaces=self.namespaces)
+        created_elem = node.find('./dct:created', namespaces=self.namespaces)
+
         json_dict = {
             '$schema': {'$ref': self.schema_formatter.schema_url},
             'doi': doi,
+            'identifiers': {
+                'oaf': oaf_id,
+            },
             'name': name,
             'acronyms': acronyms,
             'parent': parent,
             'country': country_code,
             'type': type_,
-            'subtype': subtype,
+            'subtype': subtype.lower(),
+            'remote_created': (created_elem.text if created_elem is not None
+                               else None),
+            'remote_modified': (modified_elem.text if modified_elem is not None
+                                else None),
         }
         return json_dict
 
@@ -364,21 +443,35 @@ class FundRefDOIResolver(object):
             'ec__________::EC': 'http://dx.doi.org/10.13039/501100000780',
             'arc_________::ARC': 'http://dx.doi.org/10.13039/501100000923',
             'fct_________::FCT': 'http://dx.doi.org/10.13039/501100001871',
-            'wt__________::WT': 'http://dx.doi.org/10.13039/100004440'
+            'wt__________::WT': 'http://dx.doi.org/10.13039/100004440',
         }
         self.data = data or fixed_funders
+        self.inverse_data = {v: k for k, v in self.data.items()}
 
     def resolve_by_id(self, funder_id):
         """Resolve the funder from the OpenAIRE funder id.
 
         If funder_id can be resolved, return a URI otherwise return None.
         """
-        return self.data[funder_id] if (funder_id in self.data) else None
+        return self.data.get(funder_id)
+
+    def resolve_by_oai_id(self, oai_id):
+        """Resolve the funder from the OpenAIRE OAI record id.
+
+        Hack for when funder is not provided in OpenAIRE.
+        """
+        if oai_id.startswith('oai:dnet:'):
+            oai_id = oai_id[len('oai:dnet:'):]
+        prefix = oai_id.split("::")[0]
+        suffix = prefix.replace("_", "").upper()
+        oaf = "{0}::{1}".format(prefix, suffix)
+        return self.data.get(oaf)
+
+    def resolve_by_doi(self, doi):
+        """Resolve a DOI to an OpenAIRE id."""
+        return self.inverse_data.get(doi)
 
     @staticmethod
     def strip_doi_host(doi_url):
         """Strip DOI URL from the domain prefix."""
         return doi_url.replace('http://dx.doi.org/', '')
-
-    def get_eurepo(self):
-        """Resolve the eurepo identifier."""

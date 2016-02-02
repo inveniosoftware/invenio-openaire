@@ -37,7 +37,7 @@ charset = utf-8
 indent_size = 4
 # isort plugin configuration
 known_first_party = invenio_openaire
-known_third_party = invenio_records,invenio_pidstore,jsonresolver,sickle,invenio_jsonschemas,invenio_celery
+known_third_party = invenio_records,invenio_pidstore,jsonresolver,sickle,invenio_jsonschemas,invenio_celery,flask_celeryext,invenio_search,invenio_records_rest
 multi_line_output = 2
 default_section = THIRDPARTY
 

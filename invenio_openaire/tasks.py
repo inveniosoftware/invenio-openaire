@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -28,51 +28,55 @@ from __future__ import absolute_import, print_function
 
 from celery import shared_task
 from invenio_db import db
-from invenio_pidstore.models import PersistentIdentifier, PIDStatus
+from invenio_pidstore.errors import PIDDoesNotExistError
+from invenio_pidstore.resolver import Resolver
 from invenio_records.api import Record
 
-from invenio_openaire.loaders import RemoteFundRefLoader, RemoteOAIRELoader
+from .loaders import LocalFundRefLoader, LocalOAIRELoader, \
+    RemoteFundRefLoader, RemoteOAIRELoader
+from .minters import funder_minter, grant_minter
 
 
 @shared_task(ignore_result=True)
-def harvest_fundref(loader=None):
+def harvest_fundref(path=None):
     """Harvest funders from FundRef and store as authority records."""
-    loader = loader or RemoteFundRefLoader()
+    loader = LocalFundRefLoader(source=path) if path else RemoteFundRefLoader()
     for funder_json in loader.iter_funders():
         register_funder.delay(funder_json)
 
 
 @shared_task(ignore_result=True)
-def harvest_openaire_projects(loader=None):
+def harvest_openaire_projects(path=None):
     """Harvest grants from OpenAIRE and store as authority records."""
-    loader = loader or RemoteOAIRELoader()
+    loader = LocalOAIRELoader(source=path) if path else RemoteOAIRELoader()
     for grant_json in loader.iter_grants():
         register_grant.delay(grant_json)
 
 
 @shared_task(ignore_result=True)
-def register_funder(funder_json):
+def register_funder(data):
     """Register the funder JSON in records and create a PID."""
-    record = Record.create(funder_json)
-    PersistentIdentifier.create(
-        'recid',
-        funder_json['doi'],
-        object_type='rec',
-        object_uuid=record.id,
-        status=PIDStatus.REGISTERED
-    )
-    db.session.commit()
+    create_or_update_record(data, 'frdoi',  'doi', funder_minter)
 
 
 @shared_task(ignore_result=True)
-def register_grant(grant_json):
+def register_grant(data):
     """Register the grant JSON in records and create a PID."""
-    record = Record.create(grant_json)
-    PersistentIdentifier.create(
-        'recid',
-        grant_json['internal_id'],
-        object_type='rec',
-        object_uuid=record.id,
-        status=PIDStatus.REGISTERED
-    )
-    db.session.commit()
+    create_or_update_record(data, 'grant', 'internal_id', grant_minter)
+
+
+def create_or_update_record(data, pid_type, id_key, minter):
+    """Register a funder or grant."""
+    resolver = Resolver(
+        pid_type=pid_type, object_type='rec', getter=Record.get_record)
+
+    try:
+        pid, record = resolver.resolve(data[id_key])
+        if data['remote_modified'] != record['remote_modified']:
+            record.update(data)
+            record.commit()
+            db.session.commit()
+    except PIDDoesNotExistError:
+        record = Record.create(data)
+        minter(record.id, data)
+        db.session.commit()

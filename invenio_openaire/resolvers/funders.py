@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -33,7 +33,7 @@ from invenio_records.api import Record
 @jsonresolver.route('/10.13039/<doi_code>', host='dx.doi.org')
 def resolve_funder(doi_code):
     """Resolve the JsonRef funder."""
-    pid_value = "10.13039/{}".format(doi_code)
-    _, record = Resolver(pid_type='recid', object_type='rec',
+    pid_value = "10.13039/{0}".format(doi_code)
+    _, record = Resolver(pid_type='frdoi', object_type='rec',
                          getter=Record.get_record).resolve(pid_value)
     return record

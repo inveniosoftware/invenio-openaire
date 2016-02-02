@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -21,15 +21,17 @@
 # In applying this license, CERN does not
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
+
 """Harvesting task tests."""
 
 from __future__ import absolute_import, print_function
 
+from invenio_db import db
 from invenio_pidstore.models import PersistentIdentifier
+from invenio_records.api import Record
 from invenio_records.models import RecordMetadata
 
-from invenio_openaire.loaders import GeoNamesResolver, LocalFundRefLoader, \
-    LocalOAIRELoader
+from invenio_openaire import mappings
 from invenio_openaire.tasks import harvest_fundref, harvest_openaire_projects
 
 
@@ -37,38 +39,44 @@ def test_harvest_openaire_projects(app):
     """Test harvest_openaire_projects."""
     with app.app_context():
         # Use local OpenAIRE loader
-        loader = LocalOAIRELoader(source='tests/testdata/openaire_test.sqlite')
-        harvest_openaire_projects(loader=loader)
-        assert PersistentIdentifier.query.count() == 10
+        harvest_openaire_projects(path='tests/testdata/openaire_test.sqlite')
+        assert PersistentIdentifier.query.count() == 40
         assert RecordMetadata.query.count() == 10
 
 
 def test_harvest_fundref(app):
     """Test harvest_openaire_projects."""
     with app.app_context():
-        # Use local FundRef loader
-        source = 'tests/testdata/fundref_test.rdf'
-        # Setup the fixed lookup dictionary for country code resolver
-        cc_resolver = GeoNamesResolver(cc_data={'1': 'US', '2': 'CH'})
-        loader = LocalFundRefLoader(source=source,
-                                    cc_resolver=cc_resolver)
-        harvest_fundref(loader=loader)
+        harvest_fundref(path='tests/testdata/fundref_test.rdf')
         assert PersistentIdentifier.query.count() == 5
         assert RecordMetadata.query.count() == 5
+
+
+def test_reharvest_fundref(app):
+    """Test harvest_openaire_projects."""
+    with app.app_context():
+        harvest_fundref(path='tests/testdata/fundref_test.rdf')
+        assert PersistentIdentifier.query.count() == 5
+        assert RecordMetadata.query.count() == 5
+        recid = PersistentIdentifier.query.first().object_uuid
+        test_date = "2002-01-01T16:00:00.000000"
+        record = Record.get_record(recid)
+        record['remote_modified'] = test_date
+        record.commit()
+        db.session.commit()
+        harvest_fundref(path='tests/testdata/fundref_test.rdf')
+        assert PersistentIdentifier.query.count() == 5
+        assert RecordMetadata.query.count() == 5
+        record = Record.get_record(recid)
+        assert record['remote_modified'] != test_date
 
 
 def test_harvest_all(app):
     """Test harvest_openaire_projects."""
     with app.app_context():
-        loader = LocalOAIRELoader(source='tests/testdata/openaire_test.sqlite')
-        harvest_openaire_projects(loader=loader)
-        assert PersistentIdentifier.query.count() == 10
-        assert RecordMetadata.query.count() == 10
-        source = 'tests/testdata/fundref_test.rdf'
-        # Setup the fixed lookup dictionary for country code resolver
-        cc_resolver = GeoNamesResolver(cc_data={'1': 'US', '2': 'CH'})
-        loader = LocalFundRefLoader(source=source,
-                                    cc_resolver=cc_resolver)
-        harvest_fundref(loader=loader)
-        assert PersistentIdentifier.query.count() == 15
+        harvest_fundref(path='tests/testdata/fundref_test.rdf')
+        assert PersistentIdentifier.query.count() == 5
+        assert RecordMetadata.query.count() == 5
+        harvest_openaire_projects(path='tests/testdata/openaire_test.sqlite')
+        assert PersistentIdentifier.query.count() == 45
         assert RecordMetadata.query.count() == 15

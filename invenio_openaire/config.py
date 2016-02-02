@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -49,6 +49,46 @@ OPENAIRE_OAIPMH_NAMESPACES = {
 
 OPENAIRE_SCHEMAS_HOST = 'inveniosoftware.org'
 OPENAIRE_SCHEMAS_ENDPOINT = '/schemas'
-OPENAIRE_SCHEMAS_DEFAULT_FUNDER = 'funder/funder-v1.0.0.json'
-OPENAIRE_SCHEMAS_DEFAULT_GRANT = 'grant/grant-v1.0.0.json'
+OPENAIRE_SCHEMAS_DEFAULT_FUNDER = 'funders/funder-v1.0.0.json'
+OPENAIRE_SCHEMAS_DEFAULT_GRANT = 'grants/grant-v1.0.0.json'
 OPENAIRE_JSONRESOLVER_GRANTS_HOST = 'inveniosoftware.org'
+
+
+OPENAIRE_REST_ENDPOINTS = dict(
+    frdoi=dict(
+        pid_type='frdoi',
+        pid_minter='openaire_funder_minter',
+        pid_fetcher='openaire_funder_fetcher',
+        list_route='/funders/',
+        item_route='/funders/<path:pid_value>',
+        search_index='funders',
+        search_type=None,
+        record_serializers={
+            'application/json': (
+                'invenio_records_rest.serializers:record_to_json_serializer'),
+        },
+        search_serializers={
+            'application/json': (
+                'invenio_records_rest.serializers:search_to_json_serializer'),
+        },
+        default_media_type='application/json',
+    ),
+    grant=dict(
+        pid_type='grant',
+        pid_minter='openaire_grant_minter',
+        pid_fetcher='openaire_grant_fetcher',
+        list_route='/grants/',
+        item_route='/grants/<path:pid_value>',
+        search_index='grants',
+        search_type=None,
+        record_serializers={
+            'application/json': (
+                'invenio_records_rest.serializers:record_to_json_serializer'),
+        },
+        search_serializers={
+            'application/json': (
+                'invenio_records_rest.serializers:search_to_json_serializer'),
+        },
+        default_media_type='application/json',
+    ),
+)

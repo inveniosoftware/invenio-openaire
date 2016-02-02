@@ -22,24 +22,40 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-"""Errors for OpenAIRE harvesters and resolvers."""
+"""CLI tests."""
 
 from __future__ import absolute_import, print_function
 
+from os.path import dirname, join
 
-class OAIRELoadingError(Exception):
-    """Base class for OpenAIRE dataset loading errors."""
+from click.testing import CliRunner
+from invenio_pidstore.models import PersistentIdentifier
+
+from invenio_openaire.cli import openaire
 
 
-class FunderNotFoundError(OAIRELoadingError):
-    """OpenAIRE grant funder could not be resolved error.
+def test_loadfunders(script_info):
+    """Test CLI for loading grants."""
+    assert PersistentIdentifier.query.count() == 0
+    runner = CliRunner()
+    result = runner.invoke(
+        openaire,
+        ['loadfunders', '--source',
+         join(dirname(__file__), 'testdata/fundref_test.rdf')],
+        obj=script_info)
+    assert result.exit_code == 0
+    assert PersistentIdentifier.query.count() == 5
 
-    Funder determined by funder_id and subfunder_id could not be matched
-    with any of the available FundRef records.
-    """
 
-    def __init__(self, oai_id, funder_id, subfunder_id):
-        """Initialize the exception."""
-        self.oai_id = oai_id
-        self.funder_id = funder_id
-        self.subfunder_id = subfunder_id
+def test_loadgrants(script_info):
+    """Test CLI for loading grants."""
+    assert PersistentIdentifier.query.count() == 0
+    runner = CliRunner()
+    result = runner.invoke(
+        openaire,
+        ['loadgrants', '--source',
+         join(dirname(__file__), 'testdata/openaire_test.sqlite')],
+        obj=script_info)
+    print(result.output)
+    assert result.exit_code == 0
+    assert PersistentIdentifier.query.count() == 40
