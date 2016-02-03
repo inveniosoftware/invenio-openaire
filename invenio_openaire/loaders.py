@@ -218,9 +218,13 @@ class RemoteOAIRELoader(BaseOAIRELoader):
         records = self.client.ListRecords(metadataPrefix='oaf',
                                           set='projects')
         for rec in records:
-            tree = etree.fromstring(rec.raw)
-            json = self.grantxml2json(tree)
-            yield json
+            try:
+                tree = etree.fromstring(rec.raw)
+                json = self.grantxml2json(tree)
+                yield json
+            except FunderNotFoundError as e:
+                current_app.logger.warning("Funder '{0}' not found.".format(
+                    e.funder_id))
 
 
 class GeoNamesResolver(object):

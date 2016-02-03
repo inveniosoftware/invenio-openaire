@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -21,19 +21,33 @@
 # In applying this license, CERN does not
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
-"""Resolve JSON for FundRef funders."""
+
+"""CLI for OpenAIRE module."""
 
 from __future__ import absolute_import, print_function
 
-import jsonresolver
-from invenio_pidstore.resolver import Resolver
-from invenio_records.api import Record
+import click
+from flask_cli import with_appcontext
 
 
-@jsonresolver.route('/10.13039/<doi_code>', host='dx.doi.org')
-def resolve_funder(doi_code):
-    """Resolve the JsonRef funder."""
-    pid_value = "10.13039/{}".format(doi_code)
-    _, record = Resolver(pid_type='fundr', object_type='rec',
-                         getter=Record.get_record).resolve(pid_value)
-    return record
+@click.group()
+def openaire():
+    """Command for loading OpenAIRE data."""
+
+
+@openaire.command()
+@with_appcontext
+def loadfunders():
+    """Harvest funders from FundRef."""
+    from invenio_openaire.tasks import harvest_fundref
+    harvest_fundref.delay()
+    click.echo("Background task sent to queue.")
+
+
+@openaire.command()
+@with_appcontext
+def loadgrants():
+    """Harvest funders from FundRef."""
+    from invenio_openaire.tasks import harvest_openaire_projects
+    harvest_openaire_projects.delay()
+    click.echo("Background task sent to queue.")
