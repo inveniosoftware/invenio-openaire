@@ -39,6 +39,7 @@ tests_require = [
     'invenio-celery>=1.0.0a3',
     'invenio-db[mysql,postgresql]>=1.0.0a9',
     'invenio-records-rest>=1.0.0a4',
+    'invenio-search>=1.0.0a4',
     'isort>=4.2.2',
     'jsonschema>=2.5.1',
     'mock>=1.3.0',
