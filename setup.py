@@ -149,6 +149,7 @@ setup(
         ],
         'invenio_records.jsonresolver': [
             'invenio_openaire_funders = invenio_openaire.resolvers.funders',
+            'invenio_openaire_grants = invenio_openaire.resolvers.grants',
         ],
         'invenio_search.mappings': [
             'funders = invenio_openaire.mappings',
