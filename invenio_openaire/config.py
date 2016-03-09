@@ -65,11 +65,11 @@ OPENAIRE_REST_ENDPOINTS = dict(
         search_type=None,
         record_serializers={
             'application/json': (
-                'invenio_records_rest.serializers:record_to_json_serializer'),
+                'invenio_records_rest.serializers:json_v1_response'),
         },
         search_serializers={
             'application/json': (
-                'invenio_records_rest.serializers:search_to_json_serializer'),
+                'invenio_records_rest.serializers:json_v1_search'),
         },
         default_media_type='application/json',
     ),
@@ -83,11 +83,11 @@ OPENAIRE_REST_ENDPOINTS = dict(
         search_type=None,
         record_serializers={
             'application/json': (
-                'invenio_records_rest.serializers:record_to_json_serializer'),
+                'invenio_records_rest.serializers:json_v1_response'),
         },
         search_serializers={
             'application/json': (
-                'invenio_records_rest.serializers:search_to_json_serializer'),
+                'invenio_records_rest.serializers:json_v1_search'),
         },
         default_media_type='application/json',
     ),
