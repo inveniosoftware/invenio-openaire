@@ -1,8 +1,8 @@
-=========================
- Invenio-OpenAIRE v1.0.0
-=========================
+===========================
+ Invenio-OpenAIRE v1.0.0a1
+===========================
 
-Invenio-OpenAIRE v1.0.0 was released on TBD, 2015.
+Invenio-OpenAIRE v1.0.0a1 was released on March 16, 2016.
 
 About
 -----
@@ -19,7 +19,7 @@ What's new
 Installation
 ------------
 
-   $ pip install invenio-openaire==1.0.0
+   $ pip install invenio-openaire==1.0.0a1
 
 Documentation
 -------------
