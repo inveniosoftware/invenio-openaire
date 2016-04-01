@@ -444,6 +444,7 @@ class FundRefDOIResolver(object):
             'arc_________::ARC': 'http://dx.doi.org/10.13039/501100000923',
             'fct_________::FCT': 'http://dx.doi.org/10.13039/501100001871',
             'wt__________::WT': 'http://dx.doi.org/10.13039/100004440',
+            'nsf_________::NSF': 'http://dx.doi.org/10.13039/100000001',
         }
         self.data = data or fixed_funders
         self.inverse_data = {v: k for k, v in self.data.items()}
