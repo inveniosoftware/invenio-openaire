@@ -88,8 +88,8 @@ def test_grants_json_resolving(app):
     """Test the loadef for the FundRef dataset."""
     with app.app_context():
         load_grants_testdata()
-        grant_ref = {'$ref': 'http://inveniosoftware.org/10.13039/501100000923'
-                             '::DP0667033'}
+        grant_ref = {'$ref': 'http://inveniosoftware.org/grants/'
+                             '10.13039/501100000923::DP0667033'}
         json_resolver = JSONResolver(
                 plugins=['invenio_openaire.resolvers.grants'])
         loader_cls = json_loader_factory(json_resolver)

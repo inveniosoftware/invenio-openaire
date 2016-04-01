@@ -31,7 +31,6 @@ from invenio_pidstore.models import PersistentIdentifier
 from invenio_records.api import Record
 from invenio_records.models import RecordMetadata
 
-from invenio_openaire import mappings
 from invenio_openaire.tasks import harvest_fundref, harvest_openaire_projects
 
 
