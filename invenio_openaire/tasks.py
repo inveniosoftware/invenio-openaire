@@ -46,9 +46,10 @@ def harvest_fundref(path=None):
 
 
 @shared_task(ignore_result=True)
-def harvest_openaire_projects(path=None):
+def harvest_openaire_projects(path=None, setspec=None):
     """Harvest grants from OpenAIRE and store as authority records."""
-    loader = LocalOAIRELoader(source=path) if path else RemoteOAIRELoader()
+    loader = LocalOAIRELoader(source=path) if path else RemoteOAIRELoader(
+        setspec=setspec)
     for grant_json in loader.iter_grants():
         register_grant.delay(grant_json)
 

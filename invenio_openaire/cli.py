@@ -55,9 +55,13 @@ def loadfunders(source=None):
     type=click.Path(file_okay=True, dir_okay=False, readable=True,
                     resolve_path=True, exists=True),
     help="Local OpenAIRE SQLite database.",)
+@click.option(
+    '--setspec', '-s',
+    type=str,
+    help="Set to harvest (default: projects).",)
 @with_appcontext
-def loadgrants(source=None):
+def loadgrants(source=None, setspec=None):
     """Harvest funders from FundRef."""
     from invenio_openaire.tasks import harvest_openaire_projects
-    harvest_openaire_projects.delay(path=source)
+    harvest_openaire_projects.delay(path=source, setspec=setspec)
     click.echo("Background task sent to queue.")

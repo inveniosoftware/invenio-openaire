@@ -252,12 +252,14 @@ class RemoteOAIRELoader(BaseOAIRELoader):
     Fetch the OpenAIRE records from a remote OAI-PMH endpoint.
     """
 
-    def __init__(self, source=None, **kwargs):
+    def __init__(self, source=None, setspec=None, **kwargs):
         """Initialize the loader for remote OAI-PMH access."""
         super(RemoteOAIRELoader, self).__init__(
             source or current_app.config['OPENAIRE_OAIPMH_ENDPOINT'],
             **kwargs)
         self.client = Sickle(self.source)
+        self.setspec = setspec or \
+            current_app.config['OPENAIRE_OAIPMH_DEFAULT_SET'],
 
     def iter_grants(self):
         """Fetch grants from a remote OAI-PMH endpoint.
@@ -265,7 +267,7 @@ class RemoteOAIRELoader(BaseOAIRELoader):
         Return the Sickle-provided generator object.
         """
         records = self.client.ListRecords(metadataPrefix='oaf',
-                                          set='projects')
+                                          set=self.setspec)
         for rec in records:
             try:
                 tree = etree.fromstring(rec.raw)

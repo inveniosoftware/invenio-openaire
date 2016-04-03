@@ -29,7 +29,8 @@ OPENAIRE_FUNDREF_LOCAL_SOURCE = 'data/fundref_registry.rdf'
 OPENAIRE_FUNDREF_ENDPOINT = 'http://dx.doi.org/10.13039/fundref_registry'
 OPENAIRE_CC_SOURCE = 'data/geonames2countrycodes_iso_3166.txt'
 OPENAIRE_OAI_LOCAL_SOURCE = ''  # Large file that requires separate download
-OPENAIRE_OAIPMH_ENDPOINT = "http://api.openaire.eu/oai_pmh"
+OPENAIRE_OAIPMH_ENDPOINT = 'http://api.openaire.eu/oai_pmh'
+OPENAIRE_OAIPMH_DEFAULT_SET = 'projects'
 
 OPENAIRE_FUNDREF_NAMESPACES = {
     'rdf': "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
