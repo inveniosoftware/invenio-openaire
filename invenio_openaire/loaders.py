@@ -197,7 +197,7 @@ class BaseOAIRELoader(object):
                 code=quote_plus(code), )
 
         ret_json = {
-            '$schema': {'$ref': self.schema_formatter.schema_url},
+            '$schema': self.schema_formatter.schema_url,
             'internal_id': internal_id,
             'identifiers': {
                 'oaf': oai_id,
@@ -381,7 +381,7 @@ class BaseFundRefLoader(object):
         created_elem = node.find('./dct:created', namespaces=self.namespaces)
 
         json_dict = {
-            '$schema': {'$ref': self.schema_formatter.schema_url},
+            '$schema': self.schema_formatter.schema_url,
             'doi': doi,
             'identifiers': {
                 'oaf': oaf_id,

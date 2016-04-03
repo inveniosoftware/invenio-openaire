@@ -124,8 +124,8 @@ def test_funder_schema_ep_resolving(app):
     """Test schema validation using entry-point registered schemas."""
     app.config.update(JSONSCHEMAS_HOST='inveniosoftware.org')
     json_valid = {
-        '$schema': {'$ref': 'http://inveniosoftware.org/schemas/funders/'
-                            'funder-v1.0.0.json'},
+        '$schema': (
+            'http://inveniosoftware.org/schemas/funders/funder-v1.0.0.json'),
         'doi': '10.13039/001',
         'alternateIdentifiers': [],
         'title': 'Foobar',
@@ -149,8 +149,8 @@ def test_grant_schema_ep_resolving(app):
     """Test schema validation using entry-point registered schemas."""
     app.config.update(JSONSCHEMAS_HOST='inveniosoftware.org')
     json_valid = {
-        '$schema': {'$ref': 'http://inveniosoftware.org/schemas/grants/'
-                            'grant-v1.0.0.json'},
+        '$schema': (
+            'http://inveniosoftware.org/schemas/grants/grant-v1.0.0.json'),
         'internal_id': '10.13039/001::0001',
         'identifiers': {
             'oai_id': 'oai_id00001',
