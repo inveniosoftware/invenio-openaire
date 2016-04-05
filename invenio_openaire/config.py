@@ -21,9 +21,12 @@
 # In applying this license, CERN does not
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
+
 """OpenAIRE configuration file."""
 
 from __future__ import absolute_import, print_function
+
+from invenio_records_rest.facets import terms_filter
 
 OPENAIRE_FUNDREF_LOCAL_SOURCE = 'data/fundref_registry.rdf'
 OPENAIRE_FUNDREF_ENDPOINT = 'http://dx.doi.org/10.13039/fundref_registry'
@@ -92,4 +95,74 @@ OPENAIRE_REST_ENDPOINTS = dict(
         },
         default_media_type='application/json',
     ),
+)
+
+OPENAIRE_REST_SORT_OPTIONS = dict(
+    funders=dict(
+        bestmatch=dict(
+            fields=['-_score'],
+            title='Best match',
+            default_order='asc',
+            order=1,
+        ),
+        name=dict(
+            fields=['name'],
+            title='Name',
+            default_order='asc',
+            order=2,
+        ),
+    ),
+    grants=dict(
+        bestmatch=dict(
+            fields=['-_score'],
+            title='Best match',
+            default_order='asc',
+            order=1,
+        ),
+        startdate=dict(
+            fields=['startdate'],
+            title='Start date',
+            default_order='asc',
+            order=2,
+        ),
+        enddate=dict(
+            fields=['enddate'],
+            title='End date',
+            default_order='asc',
+            order=2,
+        ),
+    )
+)
+
+#: Default sort for records REST API.
+OPENAIRE_REST_DEFAULT_SORT = dict(
+    grants=dict(query='bestmatch', noquery='bestmatch'),
+    funders=dict(query='bestmatch', noquery='bestmatch'),
+)
+
+OPENAIRE_REST_FACETS = dict(
+    funders=dict(
+        aggs=dict(
+            country=dict(
+                terms=dict(field='country'),
+            ),
+            type=dict(
+                terms=dict(field='type'),
+            ),
+        ),
+        filters=dict(
+            country=terms_filter('country'),
+            type=terms_filter('type'),
+        ),
+    ),
+    grants=dict(
+        aggs=dict(
+            funder=dict(
+                terms=dict(field='funder.acronyms'),
+            ),
+        ),
+        filters=dict(
+            funder=terms_filter('funder.acronyms'),
+        ),
+    )
 )
