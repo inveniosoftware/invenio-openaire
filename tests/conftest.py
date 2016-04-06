@@ -34,7 +34,6 @@ import tempfile
 import pytest
 from elasticsearch.exceptions import RequestError
 from flask import Flask
-from flask_celeryext import create_celery_app
 from flask_cli import FlaskCLI, ScriptInfo
 from invenio_celery import InvenioCelery
 from invenio_db import InvenioDB, db
@@ -61,6 +60,7 @@ def app(request):
         CELERY_RESULT_BACKEND="cache",
         CELERY_CACHE_BACKEND="memory",
         CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+        JSONSCHEMAS_HOST='inveniosoftware.org',
         OPENAIRE_OAI_LOCAL_SOURCE='invenio_openaire/data/oaire_local.sqlite',
         SEARCH_AUTOINDEX=[],
         TESTING=True,

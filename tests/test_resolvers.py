@@ -122,7 +122,6 @@ def test_funder_ep_resolving(app):
 
 def test_funder_schema_ep_resolving(app):
     """Test schema validation using entry-point registered schemas."""
-    app.config.update(JSONSCHEMAS_HOST='inveniosoftware.org')
     json_valid = {
         '$schema': (
             'http://inveniosoftware.org/schemas/funders/funder-v1.0.0.json'),
@@ -147,7 +146,6 @@ def test_funder_schema_ep_resolving(app):
 
 def test_grant_schema_ep_resolving(app):
     """Test schema validation using entry-point registered schemas."""
-    app.config.update(JSONSCHEMAS_HOST='inveniosoftware.org')
     json_valid = {
         '$schema': (
             'http://inveniosoftware.org/schemas/grants/grant-v1.0.0.json'),

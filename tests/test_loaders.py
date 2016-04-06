@@ -31,7 +31,6 @@ import os
 import uuid
 
 import pytest
-from invenio_db import db
 from invenio_pidstore.models import PersistentIdentifier
 from invenio_records.api import Record
 from mock import patch
