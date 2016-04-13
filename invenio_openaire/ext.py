@@ -26,8 +26,11 @@
 
 from __future__ import absolute_import, print_function
 
+from invenio_indexer.signals import before_record_index
+
 from . import config
 from .cli import openaire
+from .indexer import indexer_receiver
 
 
 class InvenioOpenAIRE(object):
@@ -42,6 +45,7 @@ class InvenioOpenAIRE(object):
         """Flask application initialization."""
         self.init_config(app)
         app.cli.add_command(openaire)
+        before_record_index.connect(indexer_receiver, sender=app)
         app.extensions['invenio-openaire'] = self
 
     def init_config(self, app):

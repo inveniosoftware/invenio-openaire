@@ -49,6 +49,12 @@
               "index": "not_analyzed"
             }
           }
+        },
+        "suggest": {
+          "type": "completion",
+          "analyzer" : "simple",
+          "search_analyzer" : "simple",
+          "payloads" : true
         }
       }
     }

@@ -35,6 +35,7 @@ import pytest
 from elasticsearch.exceptions import RequestError
 from flask import Flask
 from flask_cli import FlaskCLI, ScriptInfo
+from flask_login import LoginManager
 from invenio_celery import InvenioCelery
 from invenio_db import InvenioDB, db
 from invenio_jsonschemas import InvenioJSONSchemas
@@ -60,6 +61,7 @@ def app(request):
         CELERY_RESULT_BACKEND="cache",
         CELERY_CACHE_BACKEND="memory",
         CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+        RECORDS_REST_DEFAULT_READ_PERMISSION_FACTORY=None,
         JSONSCHEMAS_HOST='inveniosoftware.org',
         OPENAIRE_OAI_LOCAL_SOURCE='invenio_openaire/data/oaire_local.sqlite',
         SEARCH_AUTOINDEX=[],
@@ -67,6 +69,7 @@ def app(request):
     )
 
     FlaskCLI(app)
+    LoginManager(app)
     InvenioDB(app)
     InvenioRecords(app)
     InvenioCelery(app)
