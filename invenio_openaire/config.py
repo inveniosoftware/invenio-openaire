@@ -76,6 +76,11 @@ OPENAIRE_REST_ENDPOINTS = dict(
                 'invenio_records_rest.serializers:json_v1_search'),
         },
         default_media_type='application/json',
+        suggesters=dict(
+            text=dict(completion=dict(
+                field='suggest'
+            ))
+        )
     ),
     grant=dict(
         pid_type='grant',
@@ -94,6 +99,12 @@ OPENAIRE_REST_ENDPOINTS = dict(
                 'invenio_records_rest.serializers:json_v1_search'),
         },
         default_media_type='application/json',
+        suggesters=dict(
+            text=dict(completion=dict(
+                field='suggest',
+                context='funder',
+            ))
+        )
     ),
 )
 

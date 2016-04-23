@@ -44,7 +44,7 @@ def test_loadfunders(script_info):
          join(dirname(__file__), 'testdata/fundref_test.rdf')],
         obj=script_info)
     assert result.exit_code == 0
-    assert PersistentIdentifier.query.count() == 5
+    assert PersistentIdentifier.query.count() == 6
 
 
 def test_loadgrants(script_info):

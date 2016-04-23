@@ -31,7 +31,7 @@ def indexer_receiver(sender, json=None, record=None, index=None,
                      **dummy_kwargs):
     """Connect to before_record_index signal to transform record for ES."""
     # Inject timestamp into record.
-    if index.startswith('grants-'):
+    if index and index.startswith('grants-'):
         # Generate suggest field
         suggestions = [
             json.get('code'),
@@ -42,13 +42,13 @@ def indexer_receiver(sender, json=None, record=None, index=None,
             'input': [s for s in suggestions if s],
             'output': json['title'],
             'context': {
-                'funder': [json['funder']['id']]
+                'funder': [json['funder']['doi']]
             },
             'payload': {
                 'id': json['internal_id']
             },
         }
-    elif index.startswith('funders-'):
+    elif index and index.startswith('funders-'):
         # Generate suggest field
         suggestions = json.get('acronyms', []) + [json.get('name')]
         json['suggest'] = {

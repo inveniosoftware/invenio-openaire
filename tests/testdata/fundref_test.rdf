@@ -101,7 +101,7 @@
       <svf:state rdf:resource="http://sws.geonames.org/5332921/" />
       <svf:fundingBodySubType>federal/national government</svf:fundingBodySubType>
    </skos:Concept>
-   <skos:Concept rdf:about="http://dx.doi.org/10.13039/005">
+   <skos:Concept rdf:about="http://dx.doi.org/10.13039/501100000923">
       <skos:inScheme rdf:resource="http://data.fundref.org/vocabulary" />
       <skosxl:prefLabel>
          <skosxl:Label rdf:about="http://data.fundref.org/vocabulary/Label-36501">

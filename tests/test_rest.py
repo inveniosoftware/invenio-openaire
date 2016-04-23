@@ -26,34 +26,36 @@
 
 from __future__ import absolute_import, print_function
 
-from invenio_pidstore.models import PersistentIdentifier
 from invenio_records_rest import InvenioRecordsREST
 
 from invenio_openaire.config import OPENAIRE_REST_ENDPOINTS
-from invenio_openaire.tasks import harvest_fundref, harvest_openaire_projects
 
 
-def test_records_rest(app, es):
+def test_records_rest(app, db, es, indexed_records):
     """Test Records REST."""
     app.config['RECORDS_REST_ENDPOINTS'] = OPENAIRE_REST_ENDPOINTS
-    try:
-        InvenioRecordsREST(app)
-    except TypeError:
-        # Temporary support Invenio-Records-REST v1.0.0a4
-        del app.config['RECORDS_REST_ENDPOINTS']['frdoi']['default_media_type']
-        del app.config['RECORDS_REST_ENDPOINTS']['grant']['default_media_type']
-        InvenioRecordsREST(app)
-
-    harvest_openaire_projects(path='tests/testdata/openaire_test.sqlite')
-    harvest_fundref(path='tests/testdata/fundref_test.rdf')
-    assert PersistentIdentifier.query.count() == 45
+    app.config['RECORDS_REST_DEFAULT_READ_PERMISSION_FACTORY'] = None
+    InvenioRecordsREST(app)
 
     with app.test_client() as client:
+        # Item
         res = client.get("/funders/10.13039/001")
         assert res.status_code == 200
+        # List
         res = client.get("/funders/")
         assert res.status_code == 200
+        print(res.get_data(as_text=True))
+        # Suggest
+        res = client.get("/funders/_suggest?text=Uni")
+        assert res.status_code == 200
+
+        # Item
         res = client.get("/grants/10.13039/501100000923::LP0667725")
         assert res.status_code == 200
+        # List
         res = client.get("/grants/")
+        assert res.status_code == 200
+        # Suggest
+        res = client.get(
+            "/grants/_suggest?text=open&funder=10.13039/501100000923")
         assert res.status_code == 200

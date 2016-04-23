@@ -37,15 +37,19 @@ from flask import Flask
 from flask_cli import FlaskCLI, ScriptInfo
 from flask_login import LoginManager
 from invenio_celery import InvenioCelery
-from invenio_db import InvenioDB, db
+from invenio_db import db as db_
+from invenio_db import InvenioDB
+from invenio_indexer import InvenioIndexer
+from invenio_indexer.api import RecordIndexer
 from invenio_jsonschemas import InvenioJSONSchemas
 from invenio_pidstore import InvenioPIDStore
 from invenio_records import InvenioRecords
+from invenio_records.models import RecordMetadata
 from invenio_search import InvenioSearch, current_search
-from sqlalchemy_utils.functions import create_database, database_exists, \
-    drop_database
+from sqlalchemy_utils.functions import create_database, database_exists
 
 from invenio_openaire import InvenioOpenAIRE
+from invenio_openaire.tasks import harvest_fundref, harvest_openaire_projects
 
 
 @pytest.yield_fixture()
@@ -57,11 +61,11 @@ def app(request):
     app.config.update(
         SQLALCHEMY_DATABASE_URI=os.environ.get(
             'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'),
+        INDEXER_REPLACE_REFS=True,
         CELERY_ALWAYS_EAGER=True,
         CELERY_RESULT_BACKEND="cache",
         CELERY_CACHE_BACKEND="memory",
         CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
-        RECORDS_REST_DEFAULT_READ_PERMISSION_FACTORY=None,
         JSONSCHEMAS_HOST='inveniosoftware.org',
         OPENAIRE_OAI_LOCAL_SOURCE='invenio_openaire/data/oaire_local.sqlite',
         SEARCH_AUTOINDEX=[],
@@ -71,6 +75,7 @@ def app(request):
     FlaskCLI(app)
     LoginManager(app)
     InvenioDB(app)
+    InvenioIndexer(app)
     InvenioRecords(app)
     InvenioCelery(app)
     InvenioPIDStore(app)
@@ -79,19 +84,24 @@ def app(request):
     InvenioJSONSchemas(app)
 
     with app.app_context():
-        if not database_exists(str(db.engine.url)):
-            create_database(str(db.engine.url))
-        db.drop_all()
-        db.create_all()
-
         yield app
 
-        drop_database(str(db.engine.url))
     shutil.rmtree(instance_path)
 
 
 @pytest.yield_fixture()
-def script_info(app):
+def db(app):
+    """Setup database."""
+    if not database_exists(str(db_.engine.url)):
+        create_database(str(db_.engine.url))
+    db_.create_all()
+    yield db_
+    db_.session.remove()
+    db_.drop_all()
+
+
+@pytest.yield_fixture()
+def script_info(app, db):
     """CLI object."""
     with app.app_context():
         yield ScriptInfo(create_app=lambda info: app)
@@ -107,3 +117,16 @@ def es(app):
         list(current_search.create())
     yield current_search
     list(current_search.delete(ignore=[404]))
+
+
+@pytest.yield_fixture()
+def indexed_records(app, es, db):
+    """Provide elasticsearch access."""
+    harvest_openaire_projects(path='tests/testdata/openaire_test.sqlite')
+    harvest_fundref(path='tests/testdata/fundref_test.rdf')
+    records = []
+    for record in RecordMetadata.query.all():
+        records.append(record.id)
+        RecordIndexer().index_by_id(record.id)
+    es.flush_and_refresh('_all')
+    yield records

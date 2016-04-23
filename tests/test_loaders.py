@@ -133,10 +133,10 @@ def test_local_fundref_convert(app):
     assert 'FoS' in d['10.13039/004']['acronyms']
     assert d['10.13039/004']['country'] == 'US'
 
-    assert d['10.13039/005']['name'] == 'University of Bacon'
-    assert len(d['10.13039/005']['acronyms']) == 1
-    assert 'UoB' in d['10.13039/005']['acronyms']
-    assert d['10.13039/005']['country'] == 'CH'
+    assert d['10.13039/501100000923']['name'] == 'University of Bacon'
+    assert len(d['10.13039/501100000923']['acronyms']) == 1
+    assert 'UoB' in d['10.13039/501100000923']['acronyms']
+    assert d['10.13039/501100000923']['country'] == 'CH'
 
     assert not d['10.13039/001']['parent']
     assert d['10.13039/002']['parent']
@@ -148,7 +148,7 @@ def test_local_fundref_convert(app):
     assert d['10.13039/004']['parent']
     assert {'$ref': 'http://dx.doi.org/10.13039/002'} == \
         d['10.13039/004']['parent']
-    assert not d['10.13039/005']['parent']
+    assert not d['10.13039/501100000923']['parent']
 
 
 @patch('invenio_openaire.loaders.requests', mock_requests)
@@ -167,7 +167,7 @@ def test_local_openaire_loader(app):
 
 
 @patch('invenio_openaire.loaders.Sickle', MockSickle)
-def test_remote_openaire_loader(app):
+def test_remote_openaire_loader(app, db):
     """Test the remote OAI-PMH OpenAIRE loader."""
     loader = RemoteOAIRELoader()
     pytest.raises(OAIRELoadingError, list, loader.iter_grants())

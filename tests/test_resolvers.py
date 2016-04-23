@@ -32,7 +32,7 @@ import pytest
 from invenio_pidstore.models import PersistentIdentifier as PID
 from invenio_pidstore.models import PIDStatus
 from invenio_records.api import Record as R
-from jsonref import JsonRef
+from jsonref import JsonRef, JsonRefError
 from jsonresolver import JSONResolver
 from jsonresolver.contrib.jsonref import json_loader_factory
 from jsonschema.exceptions import ValidationError
@@ -60,67 +60,70 @@ def load_all_testdata():
     load_grants_testdata()
 
 
-def test_funders_json_resolving(app):
+def test_funders_json_resolving(app, db):
     """Test the loadef for the FundRef dataset."""
     # Test loading the real FundRef dataset.
     # 'grant': {'$ref': 'https://zenodo.org/funders/10.19/11/grants/22'}
-    with app.app_context():
-        load_funders_testdata()  # Load test data
-        example_funder = {
-            'doi': 'http://dx.doi.org/10.13039/003',
-            'name': 'Some funder',
-            'acronyms': ['SF', ],
-            'parent': {'$ref': 'http://dx.doi.org/10.13039/002'},
-            'country': "US",
-        }
-        json_resolver = JSONResolver(
-            plugins=['invenio_openaire.resolvers.funders',
-                     'invenio_openaire.resolvers.grants'])
-        loader_cls = json_loader_factory(json_resolver)
-        loader = loader_cls()
-        print(PID.query.all())
-        out_json = JsonRef.replace_refs(example_funder, loader=loader)
-        assert out_json['parent']['name'] == 'Department of Bar'
-        assert out_json['parent']['parent']['name'] == 'University of Foo'
+    load_funders_testdata()  # Load test data
+    example_funder = {
+        'doi': 'http://dx.doi.org/10.13039/003',
+        'name': 'Some funder',
+        'acronyms': ['SF', ],
+        'parent': {'$ref': 'http://dx.doi.org/10.13039/002'},
+        'country': "US",
+    }
+    json_resolver = JSONResolver(
+        plugins=['invenio_openaire.resolvers.funders',
+                 'invenio_openaire.resolvers.grants'])
+    loader_cls = json_loader_factory(json_resolver)
+    loader = loader_cls()
+    print(PID.query.all())
+    out_json = JsonRef.replace_refs(example_funder, loader=loader)
+    assert out_json['parent']['name'] == 'Department of Bar'
+    assert out_json['parent']['parent']['name'] == 'University of Foo'
 
 
-def test_grants_json_resolving(app):
+def test_grants_json_resolving(app, db):
     """Test the loadef for the FundRef dataset."""
-    with app.app_context():
-        load_grants_testdata()
-        grant_ref = {'$ref': 'http://inveniosoftware.org/grants/'
-                             '10.13039/501100000923::DP0667033'}
-        json_resolver = JSONResolver(
-                plugins=['invenio_openaire.resolvers.grants'])
-        loader_cls = json_loader_factory(json_resolver)
-        loader = loader_cls()
-        data = JsonRef.replace_refs(grant_ref, loader=loader)
-        assert data['title'].startswith('Dispersal and colonisation')
+    load_grants_testdata()
+    grant_ref = {'$ref': 'http://inveniosoftware.org/grants/'
+                         '10.13039/501100000923::DP0667033'}
+    json_resolver = JSONResolver(
+        plugins=['invenio_openaire.resolvers.grants'])
+    loader_cls = json_loader_factory(json_resolver)
+    loader = loader_cls()
+    data = JsonRef.replace_refs(grant_ref, loader=loader)
+    assert data['title'].startswith('Dispersal and colonisation')
+
+    # Invalid grant reference
+    grant_ref = {'$ref': 'http://inveniosoftware.org/grants/'
+                         '10.13039/invalid'}
+    data = JsonRef.replace_refs(grant_ref, loader=loader)
+    pytest.raises(JsonRefError, dict, data)
 
 
-def test_funder_ep_resolving(app):
+def test_funder_ep_resolving(app, db):
     """Test funder resolving through entry point-registered JSON resolver."""
-    with app.app_context():
-        json1 = {
-            'internal_id': '10.13039/001',
-            'parent': '',
-            'name': 'Foo',
-        }
-        json2 = {
-            'internal_id': '10.13039/002',
-            'parent': {'$ref': 'http://dx.doi.org/10.13039/001'},
-            'name': 'Bar',
-        }
-        r1 = R.create(json1)
-        PID.create('frdoi', json1['internal_id'], object_type='rec',
-                   object_uuid=r1.id, status=PIDStatus.REGISTERED)
-        r2 = R.create(json2)
-        PID.create('frdoi', json2['internal_id'], object_type='rec',
-                   object_uuid=r2.id, status=PIDStatus.REGISTERED)
-        assert r2.replace_refs()['parent'] == json1
+    json1 = {
+        'internal_id': '10.13039/001',
+        'parent': '',
+        'name': 'Foo',
+    }
+    json2 = {
+        'internal_id': '10.13039/002',
+        'parent': {'$ref': 'http://dx.doi.org/10.13039/001'},
+        'name': 'Bar',
+    }
+    r1 = R.create(json1)
+    PID.create('frdoi', json1['internal_id'], object_type='rec',
+               object_uuid=r1.id, status=PIDStatus.REGISTERED)
+    r2 = R.create(json2)
+    PID.create('frdoi', json2['internal_id'], object_type='rec',
+               object_uuid=r2.id, status=PIDStatus.REGISTERED)
+    assert r2.replace_refs()['parent'] == json1
 
 
-def test_funder_schema_ep_resolving(app):
+def test_funder_schema_ep_resolving(app, db):
     """Test schema validation using entry-point registered schemas."""
     json_valid = {
         '$schema': (
@@ -144,7 +147,7 @@ def test_funder_schema_ep_resolving(app):
     assert exc_info.value.instance == 'not_a_list'
 
 
-def test_grant_schema_ep_resolving(app):
+def test_grant_schema_ep_resolving(app, db):
     """Test schema validation using entry-point registered schemas."""
     json_valid = {
         '$schema': (
