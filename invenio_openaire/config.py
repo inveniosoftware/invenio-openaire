@@ -27,6 +27,7 @@
 from __future__ import absolute_import, print_function
 
 from invenio_records_rest.facets import terms_filter
+from invenio_records_rest.utils import allow_all
 
 OPENAIRE_FUNDREF_LOCAL_SOURCE = 'data/fundref_registry.rdf'
 OPENAIRE_FUNDREF_ENDPOINT = 'http://dx.doi.org/10.13039/fundref_registry'
@@ -64,7 +65,7 @@ OPENAIRE_REST_ENDPOINTS = dict(
         pid_minter='openaire_funder_minter',
         pid_fetcher='openaire_funder_fetcher',
         list_route='/funders/',
-        item_route='/funders/<path:pid_value>',
+        item_route='/funders/<pidpath(frdoi):pid_value>',
         search_index='funders',
         search_type=None,
         record_serializers={
@@ -80,14 +81,15 @@ OPENAIRE_REST_ENDPOINTS = dict(
             text=dict(completion=dict(
                 field='suggest'
             ))
-        )
+        ),
+        read_permission_factory_imp=allow_all,
     ),
     grant=dict(
         pid_type='grant',
         pid_minter='openaire_grant_minter',
         pid_fetcher='openaire_grant_fetcher',
         list_route='/grants/',
-        item_route='/grants/<path:pid_value>',
+        item_route='/grants/<pidpath(grant):pid_value>',
         search_index='grants',
         search_type=None,
         record_serializers={
@@ -104,7 +106,8 @@ OPENAIRE_REST_ENDPOINTS = dict(
                 field='suggest',
                 context='funder',
             ))
-        )
+        ),
+        read_permission_factory_imp=allow_all,
     ),
 )
 

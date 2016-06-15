@@ -45,6 +45,7 @@ from invenio_jsonschemas import InvenioJSONSchemas
 from invenio_pidstore import InvenioPIDStore
 from invenio_records import InvenioRecords
 from invenio_records.models import RecordMetadata
+from invenio_records_rest.utils import PIDConverter, PIDPathConverter
 from invenio_search import InvenioSearch, current_search
 from sqlalchemy_utils.functions import create_database, database_exists
 
@@ -71,6 +72,9 @@ def app(request):
         SEARCH_AUTOINDEX=[],
         TESTING=True,
     )
+
+    app.url_map.converters['pid'] = PIDConverter
+    app.url_map.converters['pidpath'] = PIDPathConverter
 
     FlaskCLI(app)
     LoginManager(app)
