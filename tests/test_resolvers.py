@@ -44,14 +44,14 @@ def load_funders_testdata():
     """Load the funders test data."""
     testdir = os.path.dirname(__file__)
     source = os.path.join(testdir, 'testdata/fundref_test.rdf')
-    harvest_fundref(path=source)
+    harvest_fundref(source=source)
 
 
 def load_grants_testdata():
     """Load the grants test data."""
     testdir = os.path.dirname(__file__)
     source = os.path.join(testdir, 'testdata/openaire_test.sqlite')
-    harvest_openaire_projects(path=source)
+    harvest_openaire_projects(source=source)
 
 
 def load_all_testdata():

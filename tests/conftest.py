@@ -126,8 +126,8 @@ def es(app):
 @pytest.yield_fixture()
 def indexed_records(app, es, db):
     """Provide elasticsearch access."""
-    harvest_openaire_projects(path='tests/testdata/openaire_test.sqlite')
-    harvest_fundref(path='tests/testdata/fundref_test.rdf')
+    harvest_openaire_projects(source='tests/testdata/openaire_test.sqlite')
+    harvest_fundref(source='tests/testdata/fundref_test.rdf')
     records = []
     for record in RecordMetadata.query.all():
         records.append(record.id)

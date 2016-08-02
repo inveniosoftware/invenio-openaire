@@ -37,7 +37,7 @@ def test_harvest_openaire_projects(app, db):
     """Test harvest_openaire_projects."""
     with app.app_context():
         # Use local OpenAIRE loader
-        harvest_openaire_projects(path='tests/testdata/openaire_test.sqlite')
+        harvest_openaire_projects(source='tests/testdata/openaire_test.sqlite')
         assert PersistentIdentifier.query.count() == 40
         assert RecordMetadata.query.count() == 10
 
@@ -45,7 +45,7 @@ def test_harvest_openaire_projects(app, db):
 def test_harvest_fundref(app, db):
     """Test harvest_openaire_projects."""
     with app.app_context():
-        harvest_fundref(path='tests/testdata/fundref_test.rdf')
+        harvest_fundref(source='tests/testdata/fundref_test.rdf')
         print(PersistentIdentifier.query.all())
         assert PersistentIdentifier.query.count() == 6
         assert RecordMetadata.query.count() == 5
@@ -54,7 +54,7 @@ def test_harvest_fundref(app, db):
 def test_reharvest_fundref(app, db):
     """Test harvest_openaire_projects."""
     with app.app_context():
-        harvest_fundref(path='tests/testdata/fundref_test.rdf')
+        harvest_fundref(source='tests/testdata/fundref_test.rdf')
         assert PersistentIdentifier.query.count() == 6
         assert RecordMetadata.query.count() == 5
         recid = PersistentIdentifier.query.first().object_uuid
@@ -63,7 +63,7 @@ def test_reharvest_fundref(app, db):
         record['remote_modified'] = test_date
         record.commit()
         db.session.commit()
-        harvest_fundref(path='tests/testdata/fundref_test.rdf')
+        harvest_fundref(source='tests/testdata/fundref_test.rdf')
         assert PersistentIdentifier.query.count() == 6
         assert RecordMetadata.query.count() == 5
         record = Record.get_record(recid)
@@ -73,9 +73,9 @@ def test_reharvest_fundref(app, db):
 def test_harvest_all(app, db):
     """Test harvest_openaire_projects."""
     with app.app_context():
-        harvest_fundref(path='tests/testdata/fundref_test.rdf')
+        harvest_fundref(source='tests/testdata/fundref_test.rdf')
         assert PersistentIdentifier.query.count() == 6
         assert RecordMetadata.query.count() == 5
-        harvest_openaire_projects(path='tests/testdata/openaire_test.sqlite')
+        harvest_openaire_projects(source='tests/testdata/openaire_test.sqlite')
         assert PersistentIdentifier.query.count() == 46
         assert RecordMetadata.query.count() == 15

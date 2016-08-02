@@ -38,18 +38,19 @@ from .minters import funder_minter, grant_minter
 
 
 @shared_task(ignore_result=True)
-def harvest_fundref(path=None):
+def harvest_fundref(source=None):
     """Harvest funders from FundRef and store as authority records."""
-    loader = LocalFundRefLoader(source=path) if path else RemoteFundRefLoader()
+    loader = LocalFundRefLoader(source=source) if source \
+        else RemoteFundRefLoader()
     for funder_json in loader.iter_funders():
         register_funder.delay(funder_json)
 
 
 @shared_task(ignore_result=True)
-def harvest_openaire_projects(path=None, setspec=None):
+def harvest_openaire_projects(source=None, setspec=None):
     """Harvest grants from OpenAIRE and store as authority records."""
-    loader = LocalOAIRELoader(source=path) if path else RemoteOAIRELoader(
-        setspec=setspec)
+    loader = LocalOAIRELoader(source=source) if source \
+        else RemoteOAIRELoader(setspec=setspec)
     for grant_json in loader.iter_grants():
         register_grant.delay(grant_json)
 
