@@ -32,6 +32,8 @@ from click.testing import CliRunner
 from invenio_pidstore.models import PersistentIdentifier
 
 from invenio_openaire.cli import openaire
+from conftest import MockSickle
+from mock import patch
 
 
 def test_loadfunders(script_info):

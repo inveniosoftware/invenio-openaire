@@ -38,6 +38,7 @@ loader also capable of fetching it from a remote location.
 
 from __future__ import absolute_import, print_function
 
+import json
 import os
 import sqlite3
 import xml.etree.ElementTree as ET
@@ -119,7 +120,7 @@ class BaseOAIRELoader(object):
         return tree.xpath(xpath_str, namespaces=self.namespaces)
 
     def fundertree2json(self, tree, oai_id):
-        """."""
+        """Convert OpenAIRE's funder XML to JSON """
         try:
             tree = self.get_subtree(tree, 'fundingtree')[0]
         except IndexError:  # pragma: nocover
@@ -171,8 +172,9 @@ class BaseOAIRELoader(object):
             program=subfunder_name,
         )
 
-    def grantxml2json(self, tree):
+    def grantxml2json(self, grant_xml):
         """Convert OpenAIRE grant XML into JSON."""
+        tree = etree.fromstring(grant_xml)
         ptree = self.get_subtree(
             tree, '/oai:record/oai:metadata/oaf:entity/oaf:project')[0]
 
@@ -221,28 +223,45 @@ class LocalOAIRELoader(BaseOAIRELoader):
     """Local OpenAIRE dataset loader.
 
     Load the OpenAIRE grant data from a pre-fetched local sqlite database.
+    SQLite database can contain raw XML or formatted JSON grant records.
+    The Loader can iterate over items in the database and return grants as
+    a sequence generator, where each item in a sequece is JSON (as_json=True)
+    or XML (as_json=False).
+    Supported combination of input (database) and output (generator) formats:
+
+    XML -> XML
+    XML -> JSON
+    JSON -> JSON
     """
 
     def __init__(self, source=None, **kwargs):
-        """Initialize the loader for local database."""
+        """
+        Initialize the loader for local database.
+
+        :param source: path to sqlite database file.
+        """
         super(LocalOAIRELoader, self).__init__(
             source or current_app.config['OPENAIRE_OAI_LOCAL_SOURCE'],
             **kwargs)
         self.db_connection = None
 
-    def iter_grants(self):
+    def iter_grants(self, as_json=True):
         """Fetch records from the SQLite database."""
         self.db_connection = sqlite3.connect(self.source)
-        n_grants = self.db_connection.cursor().execute(
-            "SELECT COUNT(1) from record").fetchone()[0]
+        n_grants, = self.db_connection.cursor().execute(
+            "SELECT COUNT(1) from grants").fetchone()
         result = self.db_connection.cursor().execute(
-            "SELECT * FROM record"
+            "SELECT data, format FROM grants"
         )
         for _ in range(int(n_grants)):
-            raw_xml = result.fetchone()[0]
-            tree = etree.fromstring(raw_xml)
-            json = self.grantxml2json(tree)
-            yield json
+            data, data_format = result.fetchone()
+            if (not as_json) and data_format == 'json':
+                raise Exception("Cannot convert JSON source to XML output.")
+            elif as_json and data_format == 'xml':
+                data = self.grantxml2json(data)
+            elif as_json and data_format == 'json':
+                data = json.loads(data)
+            yield data
         self.db_connection.close()
 
 
@@ -261,7 +280,7 @@ class RemoteOAIRELoader(BaseOAIRELoader):
         self.setspec = setspec or \
             current_app.config['OPENAIRE_OAIPMH_DEFAULT_SET'],
 
-    def iter_grants(self):
+    def iter_grants(self, as_json=True):
         """Fetch grants from a remote OAI-PMH endpoint.
 
         Return the Sickle-provided generator object.
@@ -270,12 +289,69 @@ class RemoteOAIRELoader(BaseOAIRELoader):
                                           set=self.setspec)
         for rec in records:
             try:
-                tree = etree.fromstring(rec.raw)
-                json = self.grantxml2json(tree)
-                yield json
+                grant_out = rec.raw  # rec.raw is XML
+                if as_json:
+                    grant_out = self.grantxml2json(grant_out)
+                yield grant_out
             except FunderNotFoundError as e:
                 current_app.logger.warning("Funder '{0}' not found.".format(
                     e.funder_id))
+
+
+class OAIREDumper(object):
+    """Dumper for Open AIRE dataset.
+
+    Fetch the OpenAIRE records from a remote OAI-PMH endpoint and dump locally.
+    """
+
+    def __init__(self, destination, setspec='projects'):
+        """
+        Initialize the dumper.
+
+        :param commit_every_n_records: Commit to dabase every N records.
+        :type commit_every_n_records: int
+        """
+        self.loader = RemoteOAIRELoader(setspec=setspec)
+        self.destination = destination
+
+    @staticmethod
+    def _db_exists(connection):
+        row = connection.execute("SELECT name FROM sqlite_master WHERE "
+                                 "type='table' and name='grants'").fetchone()
+        if row is None:
+            return False
+        elif 'grants' in row:
+            return True
+        else:
+            raise Exception("Connected database exists, but it's not a valid"
+                            "OpenAIRE schema.")
+
+    def dump(self, as_json=True, commit_batch_size=100):
+        """
+        Dump the grant information to a local storage.
+
+        :param as_json: Convert XML to JSON before saving (default: True).
+        """
+        connection = sqlite3.connect(self.destination)
+        format_ = 'json' if as_json else 'xml'
+        if not self._db_exists(connection):
+            connection.execute(
+                "CREATE TABLE grants (data text, format text)")
+
+        # This will call the RemoteOAIRELoader.iter_grants and fetch
+        # records from remote location.
+        grants_iterator = self.loader.iter_grants(as_json=as_json)
+        for idx, grant_data in enumerate(grants_iterator, 1):
+            if as_json:
+                grant_data = json.dumps(grant_data, indent=2)
+            connection.execute(
+                "INSERT INTO grants VALUES (?, ?)", (grant_data, format_))
+
+            # Commit to database every N records
+            if idx % commit_batch_size == 0:
+                connection.commit()
+        connection.commit()
+        connection.close()
 
 
 class GeoNamesResolver(object):
@@ -431,8 +507,8 @@ class RemoteFundRefLoader(BaseFundRefLoader):
         self.source = source or \
             current_app.config['OPENAIRE_FUNDREF_ENDPOINT']
         obj = requests.get(self.source, stream=True)
-        raw_xml = obj.text
-        self.doc_root = ET.fromstring(raw_xml)
+        funders_xml = obj.text
+        self.doc_root = ET.fromstring(funders_xml)
 
 
 class FundRefDOIResolver(object):

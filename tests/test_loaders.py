@@ -38,31 +38,8 @@ from mock import patch
 from invenio_openaire.errors import FunderNotFoundError, OAIRELoadingError
 from invenio_openaire.loaders import FundRefDOIResolver, GeoNamesResolver, \
     LocalFundRefLoader, LocalOAIRELoader, RemoteFundRefLoader, \
-    RemoteOAIRELoader
-
-
-class MockSickle(object):
-    """Mock of the OAI-PMH harvester.
-
-    Load the grant XML data from file and mock the Sickle datatype.
-    """
-
-    def __init__(self, source):
-        """Initialize the harvester."""
-        self.source = source
-        self.data = open('tests/testdata/mock_oai_pmh.txt', 'r').readlines()
-
-    class MockRecordType(object):
-        """Mock the OAI-PMH data type."""
-
-        def __init__(self, raw_data):
-            """Init the data type."""
-            self.raw = raw_data
-
-    def ListRecords(self, metadataPrefix=None, set=None):
-        """Record list generator."""
-        for grant_xml in self.data:
-            yield self.MockRecordType(grant_xml)
+    RemoteOAIRELoader, OAIREDumper
+from conftest import MockSickle
 
 
 class mock_requests(object):
@@ -199,3 +176,21 @@ def test_grant_funder_not_found(app):
         funder_resolver=FundRefDOIResolver(data={'foo': 'bar'}))
     with pytest.raises(FunderNotFoundError):
         list(loader.iter_grants())
+
+
+@patch('invenio_openaire.loaders.Sickle', MockSickle)
+def test_oaire_dumper(db, sqlite_tmpdb):
+
+    recuuid = uuid.uuid4()
+    PersistentIdentifier.create(
+        'frdoi', '10.13039/501100000925',
+        object_type='rec', object_uuid=recuuid, status='R')
+    Record.create({'acronyms': ['EC']}, id_=recuuid)
+    dumper = OAIREDumper(destination=sqlite_tmpdb)
+
+    # We expect to harvest 5 record from the MockSickle.
+    # with 'commit_batch_size=2', we will make 3 commits to sqlite db
+    dumper.dump(commit_batch_size=2)
+    loader = LocalOAIRELoader(source=sqlite_tmpdb)
+    records = list(loader.iter_grants())
+    assert len(records) == 5

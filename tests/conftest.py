@@ -53,6 +53,32 @@ from invenio_openaire import InvenioOpenAIRE
 from invenio_openaire.tasks import harvest_fundref, harvest_openaire_projects
 
 
+class MockSickle(object):
+    """Mock of the OAI-PMH harvester.
+
+    Load the grant XML data from file and mock the Sickle datatype.
+    """
+
+    def __init__(self, source):
+        """Initialize the harvester."""
+        self.source = source
+        fname = os.path.join(__file__, 'testdata/mock_oai_pmh.txt')
+        with open(fname, 'r') as f:
+            self.data = f.readlines()
+
+    class MockRecordType(object):
+        """Mock the OAI-PMH data type."""
+
+        def __init__(self, raw_data):
+            """Init the data type."""
+            self.raw = raw_data
+
+    def ListRecords(self, metadataPrefix=None, set=None):
+        """Record list generator."""
+        for grant_xml in self.data:
+            yield self.MockRecordType(grant_xml)
+
+
 @pytest.yield_fixture()
 def app(request):
     """Flask application fixture."""
@@ -126,11 +152,21 @@ def es(app):
 @pytest.yield_fixture()
 def indexed_records(app, es, db):
     """Provide elasticsearch access."""
-    harvest_openaire_projects(path='tests/testdata/openaire_test.sqlite')
-    harvest_fundref(path='tests/testdata/fundref_test.rdf')
+    harvest_openaire_projects(source='tests/testdata/openaire_test.sqlite')
+    harvest_fundref(source='tests/testdata/fundref_test.rdf')
     records = []
     for record in RecordMetadata.query.all():
         records.append(record.id)
         RecordIndexer().index_by_id(record.id)
     es.flush_and_refresh('_all')
     yield records
+
+
+@pytest.yield_fixture()
+def sqlite_tmpdb():
+    """Create a temporary sqlite database file."""
+    fd, path = tempfile.mkstemp("_db.sqlite")
+
+    yield path
+
+    os.remove(path)
