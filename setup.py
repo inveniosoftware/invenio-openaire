@@ -64,8 +64,8 @@ setup_requires = [
 ]
 
 install_requires = [
+    'Flask>=0.11.1',
     'Flask-BabelEx>=0.9.2',
-    'Flask-CLI>=0.2.1',
     'Flask-Login>=0.3.2',
     'invenio-indexer>=1.0.0a3',
     'invenio-jsonschemas>=1.0.0a2',
