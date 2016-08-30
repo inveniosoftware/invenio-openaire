@@ -29,11 +29,11 @@ from __future__ import absolute_import, print_function
 from os.path import dirname, join
 
 from click.testing import CliRunner
+from conftest import MockSickle
 from invenio_pidstore.models import PersistentIdentifier
+from mock import patch
 
 from invenio_openaire.cli import openaire
-from conftest import MockSickle
-from mock import patch
 
 
 def test_loadfunders(script_info):

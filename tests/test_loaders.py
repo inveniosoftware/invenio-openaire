@@ -31,15 +31,15 @@ import os
 import uuid
 
 import pytest
+from conftest import MockSickle
 from invenio_pidstore.models import PersistentIdentifier
 from invenio_records.api import Record
 from mock import patch
 
 from invenio_openaire.errors import FunderNotFoundError, OAIRELoadingError
 from invenio_openaire.loaders import FundRefDOIResolver, GeoNamesResolver, \
-    LocalFundRefLoader, LocalOAIRELoader, RemoteFundRefLoader, \
-    RemoteOAIRELoader, OAIREDumper
-from conftest import MockSickle
+    LocalFundRefLoader, LocalOAIRELoader, OAIREDumper, RemoteFundRefLoader, \
+    RemoteOAIRELoader
 
 
 class mock_requests(object):

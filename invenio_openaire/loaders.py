@@ -120,7 +120,7 @@ class BaseOAIRELoader(object):
         return tree.xpath(xpath_str, namespaces=self.namespaces)
 
     def fundertree2json(self, tree, oai_id):
-        """Convert OpenAIRE's funder XML to JSON """
+        """Convert OpenAIRE's funder XML to JSON."""
         try:
             tree = self.get_subtree(tree, 'fundingtree')[0]
         except IndexError:  # pragma: nocover
@@ -235,8 +235,7 @@ class LocalOAIRELoader(BaseOAIRELoader):
     """
 
     def __init__(self, source=None, **kwargs):
-        """
-        Initialize the loader for local database.
+        """Initialize the loader for local database.
 
         :param source: path to sqlite database file.
         """

@@ -30,6 +30,7 @@ from __future__ import absolute_import, print_function
 import os
 import shutil
 import tempfile
+from os.path import dirname, join
 
 import pytest
 from elasticsearch.exceptions import RequestError
@@ -62,7 +63,7 @@ class MockSickle(object):
     def __init__(self, source):
         """Initialize the harvester."""
         self.source = source
-        fname = os.path.join(__file__, 'testdata/mock_oai_pmh.txt')
+        fname = join(dirname(__file__), 'testdata/mock_oai_pmh.txt')
         with open(fname, 'r') as f:
             self.data = f.readlines()
 
