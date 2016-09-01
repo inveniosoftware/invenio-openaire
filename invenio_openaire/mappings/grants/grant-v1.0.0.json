@@ -101,8 +101,8 @@
         },
         "suggest": {
           "type": "completion",
-          "analyzer" : "simple",
-          "search_analyzer" : "simple",
+          "analyzer" : "snowball",
+          "search_analyzer" : "snowball",
           "payloads" : true,
           "context": {
             "funder": {

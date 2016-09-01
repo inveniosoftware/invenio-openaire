@@ -45,7 +45,9 @@ def indexer_receiver(sender, json=None, record=None, index=None,
                 'funder': [json['funder']['doi']]
             },
             'payload': {
-                'id': json['internal_id']
+                'id': json['internal_id'],
+                'legacy_id': (json['code'] if json.get('program') == 'FP7'
+                              else json['internal_id'])
             },
         }
     elif index and index.startswith('funders-'):
