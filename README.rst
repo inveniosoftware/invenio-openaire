@@ -46,4 +46,4 @@ Invenio module providing integration between Invenio repositories and OpenAIRE.
 *This is an experimental developer preview release.*
 
 * Free software: GPLv2 license
-* Documentation: https://pythonhosted.org/invenio-openaire/
+* Documentation: https://invenio-openaire.readthedocs.io/

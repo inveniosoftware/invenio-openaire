@@ -24,7 +24,7 @@ Installation
 Documentation
 -------------
 
-   http://pythonhosted.org/invenio-openaire/
+   http://invenio-openaire.readthedocs.io/
 
 Happy hacking and thanks for flying Invenio-OpenAIRE.
 
