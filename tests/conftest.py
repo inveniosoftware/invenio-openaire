@@ -35,7 +35,7 @@ from os.path import dirname, join
 import pytest
 from elasticsearch.exceptions import RequestError
 from flask import Flask
-from flask_cli import FlaskCLI, ScriptInfo
+from flask.cli import ScriptInfo
 from flask_login import LoginManager
 from invenio_celery import InvenioCelery
 from invenio_db import db as db_
@@ -103,7 +103,6 @@ def app(request):
     app.url_map.converters['pid'] = PIDConverter
     app.url_map.converters['pidpath'] = PIDPathConverter
 
-    FlaskCLI(app)
     LoginManager(app)
     InvenioDB(app)
     InvenioIndexer(app)

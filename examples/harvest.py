@@ -38,7 +38,6 @@ from __future__ import absolute_import, print_function
 from flask import Flask
 from flask_babelex import Babel
 from flask_celeryext import create_celery_app
-from flask_cli import FlaskCLI
 from invenio_celery import InvenioCelery
 from invenio_db import InvenioDB, db
 from invenio_jsonschemas import InvenioJSONSchemas
@@ -53,7 +52,6 @@ from invenio_openaire.tasks import harvest_fundref, harvest_openaire_projects
 # Create Flask application
 app = Flask(__name__)
 Babel(app)
-FlaskCLI(app)
 InvenioDB(app)
 InvenioRecords(app)
 InvenioCelery(app)
