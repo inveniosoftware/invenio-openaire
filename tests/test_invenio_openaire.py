@@ -27,7 +27,6 @@
 from __future__ import absolute_import, print_function
 
 from flask import Flask
-from flask_cli import FlaskCLI
 
 from invenio_openaire import InvenioOpenAIRE
 
@@ -41,12 +40,10 @@ def test_version():
 def test_init():
     """Test extension initialization."""
     app = Flask('testapp')
-    FlaskCLI(app)
     ext = InvenioOpenAIRE(app)
     assert 'invenio-openaire' in app.extensions
 
     app = Flask('testapp')
-    FlaskCLI(app)
     ext = InvenioOpenAIRE()
     assert 'invenio-openaire' not in app.extensions
     ext.init_app(app)

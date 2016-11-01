@@ -29,7 +29,7 @@ from __future__ import absolute_import, print_function
 import os
 
 import click
-from flask_cli import with_appcontext
+from flask.cli import with_appcontext
 
 from invenio_openaire.loaders import OAIREDumper
 from invenio_openaire.tasks import harvest_fundref, harvest_openaire_projects
