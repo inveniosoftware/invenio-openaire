@@ -91,7 +91,7 @@ class BaseOAIRELoader(object):
 
     def __init__(self, source, funder_resolver=None, namespaces=None,
                  schema_formatter=None):
-        """Initialize the loader."""
+        """Init the loader."""
         self.source = source
         self.funder_resolver = funder_resolver or FundRefDOIResolver()
         self.namespaces = namespaces or \
@@ -235,7 +235,7 @@ class LocalOAIRELoader(BaseOAIRELoader):
     """
 
     def __init__(self, source=None, **kwargs):
-        """Initialize the loader for local database.
+        """Init the loader for local database.
 
         :param source: path to sqlite database file.
         """
@@ -271,7 +271,7 @@ class RemoteOAIRELoader(BaseOAIRELoader):
     """
 
     def __init__(self, source=None, setspec=None, **kwargs):
-        """Initialize the loader for remote OAI-PMH access."""
+        """Init the loader for remote OAI-PMH access."""
         super(RemoteOAIRELoader, self).__init__(
             source or current_app.config['OPENAIRE_OAIPMH_ENDPOINT'],
             **kwargs)
@@ -305,7 +305,7 @@ class OAIREDumper(object):
 
     def __init__(self, destination, setspec='projects'):
         """
-        Initialize the dumper.
+        Init the dumper.
 
         :param commit_every_n_records: Commit to dabase every N records.
         :type commit_every_n_records: int
@@ -357,7 +357,7 @@ class GeoNamesResolver(object):
     """Resolver for the country codes from the GeoNames URL or ID."""
 
     def __init__(self, cc_fname=None, cc_data=None):
-        """Initalize the GeoNames country code resolver.
+        """Init the GeoNames country code resolver.
 
         Provide the cc_data dictionary or create it from file:
 
@@ -398,7 +398,7 @@ class BaseFundRefLoader(object):
 
     def __init__(self, namespaces=None, cc_resolver=None,
                  schema_formatter=None):
-        """Initialize the loader."""
+        """Init the loader."""
         self.namespaces = namespaces or \
             current_app.config['OPENAIRE_FUNDREF_NAMESPACES']
         self.cc_resolver = cc_resolver or GeoNamesResolver()
@@ -487,7 +487,7 @@ class LocalFundRefLoader(BaseFundRefLoader):
     """Load the FundRef dataset from a local file."""
 
     def __init__(self, namespaces=None, cc_resolver=None, source=None):
-        """Initialize the local loader."""
+        """Init the local loader."""
         super(LocalFundRefLoader, self).__init__(
             namespaces=namespaces, cc_resolver=cc_resolver)
         self.source = source or \
@@ -500,7 +500,7 @@ class RemoteFundRefLoader(BaseFundRefLoader):
     """Load the FundRef dataset from a remote location."""
 
     def __init__(self, namespaces=None, cc_resolver=None, source=None):
-        """Initialize the remote loader."""
+        """Init the remote loader."""
         super(RemoteFundRefLoader, self).__init__(
             namespaces=namespaces, cc_resolver=cc_resolver)
         self.source = source or \
@@ -514,7 +514,7 @@ class FundRefDOIResolver(object):
     """Resolve the FundRef funders by constant definitions."""
 
     def __init__(self, data=None):
-        """Initialize the resolver."""
+        """Init the resolver."""
         fixed_funders = {
             'nhmrc_______::NHMRC': 'http://dx.doi.org/10.13039/501100000925',
             'ec__________::EC': 'http://dx.doi.org/10.13039/501100000780',
