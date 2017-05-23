@@ -49,6 +49,7 @@ class mock_requests(object):
         """Mock of the Response object."""
 
         def __init__(self, text):
+            """Init the response mock with fixed text."""
             self.text = text
 
     @classmethod
@@ -180,7 +181,7 @@ def test_grant_funder_not_found(app):
 
 @patch('invenio_openaire.loaders.Sickle', MockSickle)
 def test_oaire_dumper(db, sqlite_tmpdb):
-
+    """Test the grants dumper to local destination."""
     recuuid = uuid.uuid4()
     PersistentIdentifier.create(
         'frdoi', '10.13039/501100000925',
