@@ -26,8 +26,12 @@
 
 from __future__ import absolute_import, print_function
 
-from celery import shared_task
+from copy import deepcopy
+
+from celery import chain, shared_task
+from flask import current_app
 from invenio_db import db
+from invenio_indexer.api import RecordIndexer
 from invenio_pidstore.errors import PIDDoesNotExistError
 from invenio_pidstore.resolver import Resolver
 from invenio_records.api import Record
@@ -56,6 +60,18 @@ def harvest_openaire_projects(source=None, setspec=None):
 
 
 @shared_task(ignore_result=True)
+def harvest_all_openaire_projects():
+    """Reharvest all grants from OpenAIRE.
+
+    Harvest all OpenAIRE grants in a chain to prevent OpenAIRE
+    overloading from multiple parallel harvesting.
+    """
+    setspecs = current_app.config['OPENAIRE_GRANTS_SPECS']
+    chain(harvest_openaire_projects.s(setspec=setspec)
+          for setspec in setspecs).apply_async()
+
+
+@shared_task(ignore_result=True)
 def register_funder(data):
     """Register the funder JSON in records and create a PID."""
     create_or_update_record(data, 'frdoi',  'doi', funder_minter)
@@ -74,11 +90,21 @@ def create_or_update_record(data, pid_type, id_key, minter):
 
     try:
         pid, record = resolver.resolve(data[id_key])
-        if data['remote_modified'] != record['remote_modified']:
+        data_c = deepcopy(data)
+        del data_c['remote_modified']
+        record_c = deepcopy(data)
+        del record_c['remote_modified']
+        # All grants on OpenAIRE are modified periodically even if nothing
+        # has changed. We need to check for actual differences in the metadata
+        if data_c != record_c:
             record.update(data)
             record.commit()
+            record_id = record.id
             db.session.commit()
+            RecordIndexer().bulk_index([str(record_id), ])
     except PIDDoesNotExistError:
         record = Record.create(data)
+        record_id = record.id
         minter(record.id, data)
         db.session.commit()
+        RecordIndexer().bulk_index([str(record_id), ])

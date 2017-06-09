@@ -26,13 +26,15 @@
 
 from __future__ import absolute_import, print_function
 
+import json
 import os
 
 import click
 from flask.cli import with_appcontext
 
 from invenio_openaire.loaders import OAIREDumper
-from invenio_openaire.tasks import harvest_fundref, harvest_openaire_projects
+from invenio_openaire.tasks import harvest_all_openaire_projects, \
+    harvest_fundref, harvest_openaire_projects, register_grant
 
 
 @click.group()
@@ -69,6 +71,30 @@ def loadgrants(source=None, setspec=None):
     """Harvest grants from OpenAIRE."""
     harvest_openaire_projects.delay(source=source, setspec=setspec)
     click.echo("Background task sent to queue.")
+
+
+@openaire.command()
+@with_appcontext
+def load_all_grants():
+    """Harvest all grants from OpenAIRE.
+
+    Celerybeat task for periodic re-harvesting of OpenAIRE grants.
+    """
+    harvest_all_openaire_projects.delay()
+
+
+@openaire.command()
+@click.option(
+    '--source',
+    type=click.Path(file_okay=True, dir_okay=False, readable=True,
+                    resolve_path=True, exists=True),
+    help="JSON file with grant information.")
+@with_appcontext
+def registergrant(source=None, setspec=None):
+    """Harvest grants from OpenAIRE."""
+    with open(source, 'r') as fp:
+        data = json.load(fp)
+    register_grant(data)
 
 
 @openaire.command()
