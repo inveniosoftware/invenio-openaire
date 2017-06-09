@@ -29,14 +29,12 @@ from __future__ import absolute_import, print_function
 from os.path import dirname, join
 
 from click.testing import CliRunner
-from conftest import MockSickle
 from invenio_pidstore.models import PersistentIdentifier
-from mock import patch
 
 from invenio_openaire.cli import openaire
 
 
-def test_loadfunders(script_info):
+def test_loadfunders(script_info, es):
     """Test CLI for loading grants."""
     assert PersistentIdentifier.query.count() == 0
     runner = CliRunner()
@@ -49,9 +47,10 @@ def test_loadfunders(script_info):
     assert PersistentIdentifier.query.count() == 6
 
 
-def test_loadgrants(script_info):
+def test_loadgrants(script_info, es, funders):
     """Test CLI for loading grants."""
-    assert PersistentIdentifier.query.count() == 0
+    # Funders only
+    assert PersistentIdentifier.query.count() == 6
     runner = CliRunner()
     result = runner.invoke(
         openaire,
@@ -60,4 +59,4 @@ def test_loadgrants(script_info):
         obj=script_info)
     print(result.output)
     assert result.exit_code == 0
-    assert PersistentIdentifier.query.count() == 40
+    assert PersistentIdentifier.query.count() == 46

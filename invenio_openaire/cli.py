@@ -26,13 +26,15 @@
 
 from __future__ import absolute_import, print_function
 
+import json
 import os
 
 import click
 from flask.cli import with_appcontext
 
 from invenio_openaire.loaders import OAIREDumper
-from invenio_openaire.tasks import harvest_fundref, harvest_openaire_projects
+from invenio_openaire.tasks import harvest_all_openaire_projects, \
+    harvest_fundref, harvest_openaire_projects, register_grant
 
 
 @click.group()
@@ -64,11 +66,46 @@ def loadfunders(source=None):
     type=str,
     default='projects',
     help="Set to harvest (default: projects).")
+@click.option(
+    '--all', '-A', 'all_grants',
+    default=False,
+    is_flag=True,
+    help="Harvest all grants (default: False).")
 @with_appcontext
-def loadgrants(source=None, setspec=None):
+def loadgrants(source=None, setspec=None, all_grants=False):
+    """Harvest grants from OpenAIRE.
+
+    :param source: Load the grants from a local sqlite db (offline).
+        The value of the parameter should be a path to the local file.
+    :type source: str
+    :param setspec: Harvest specific set through OAI-PMH
+        Creates a remote connection to OpenAIRE.
+    :type setspec: str
+    :param all_grants: Harvest all sets through OAI-PMH,
+        as specified in the configuration OPENAIRE_GRANTS_SPEC. Sets are
+        harvested sequentially in the order specified in the configuration.
+        Creates a remote connection to OpenAIRE.
+    :type all_grants: bool
+    """
+    if all_grants:
+        harvest_all_openaire_projects.delay()
+    else:
+        harvest_openaire_projects.delay(source=source, setspec=setspec)
+        click.echo("Background task sent to queue.")
+
+
+@openaire.command()
+@click.option(
+    '--source',
+    type=click.Path(file_okay=True, dir_okay=False, readable=True,
+                    resolve_path=True, exists=True),
+    help="JSON file with grant information.")
+@with_appcontext
+def registergrant(source=None, setspec=None):
     """Harvest grants from OpenAIRE."""
-    harvest_openaire_projects.delay(source=source, setspec=setspec)
-    click.echo("Background task sent to queue.")
+    with open(source, 'r') as fp:
+        data = json.load(fp)
+    register_grant(data)
 
 
 @openaire.command()

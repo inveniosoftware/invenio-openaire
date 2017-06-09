@@ -58,6 +58,18 @@ OPENAIRE_SCHEMAS_DEFAULT_FUNDER = 'funders/funder-v1.0.0.json'
 OPENAIRE_SCHEMAS_DEFAULT_GRANT = 'grants/grant-v1.0.0.json'
 OPENAIRE_JSONRESOLVER_GRANTS_HOST = 'inveniosoftware.org'
 
+OPENAIRE_GRANTS_SPECS = [
+    'ARCProjects',
+    'ECProjects',
+    'FCTProjects',
+    'MESTDProjects',
+    'MZOSProjects',
+    'NHMRCProjects',
+    'NWOProjects',
+    'WTProjects',
+    'NSFProjects',
+]
+
 
 OPENAIRE_REST_ENDPOINTS = dict(
     frdoi=dict(

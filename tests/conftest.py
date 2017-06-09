@@ -144,16 +144,21 @@ def es(app):
         list(current_search.create())
     except RequestError:
         list(current_search.delete(ignore=[404]))
-        list(current_search.create())
+        list(current_search.create(ignore=[400]))
     yield current_search
     list(current_search.delete(ignore=[404]))
 
 
 @pytest.yield_fixture()
-def indexed_records(app, es, db):
-    """Provide elasticsearch access."""
-    harvest_openaire_projects(source='tests/testdata/openaire_test.sqlite')
+def funders(app, es, db):
+    """Funder records fixture."""
     harvest_fundref(source='tests/testdata/fundref_test.rdf')
+
+
+@pytest.yield_fixture()
+def grants(app, es, db, funders):
+    """Grant records fixture."""
+    harvest_openaire_projects(source='tests/testdata/openaire_test.sqlite')
     records = []
     for record in RecordMetadata.query.all():
         records.append(record.id)

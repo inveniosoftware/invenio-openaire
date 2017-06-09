@@ -33,16 +33,16 @@ from invenio_records.models import RecordMetadata
 from invenio_openaire.tasks import harvest_fundref, harvest_openaire_projects
 
 
-def test_harvest_openaire_projects(app, db):
+def test_harvest_openaire_projects(app, db, es, funders):
     """Test harvest_openaire_projects."""
     with app.app_context():
         # Use local OpenAIRE loader
         harvest_openaire_projects(source='tests/testdata/openaire_test.sqlite')
-        assert PersistentIdentifier.query.count() == 40
-        assert RecordMetadata.query.count() == 10
+        assert PersistentIdentifier.query.count() == 46
+        assert RecordMetadata.query.count() == 15
 
 
-def test_harvest_fundref(app, db):
+def test_harvest_fundref(app, db, es):
     """Test harvest_openaire_projects."""
     with app.app_context():
         harvest_fundref(source='tests/testdata/fundref_test.rdf')
@@ -51,26 +51,25 @@ def test_harvest_fundref(app, db):
         assert RecordMetadata.query.count() == 5
 
 
-def test_reharvest_fundref(app, db):
+def test_reharvest_fundref(app, db, es):
     """Test harvest_openaire_projects."""
     with app.app_context():
         harvest_fundref(source='tests/testdata/fundref_test.rdf')
         assert PersistentIdentifier.query.count() == 6
         assert RecordMetadata.query.count() == 5
         recid = PersistentIdentifier.query.first().object_uuid
-        test_date = "2002-01-01T16:00:00.000000"
         record = Record.get_record(recid)
-        record['remote_modified'] = test_date
+        record['title'] = 'Foobar'
         record.commit()
         db.session.commit()
         harvest_fundref(source='tests/testdata/fundref_test.rdf')
         assert PersistentIdentifier.query.count() == 6
         assert RecordMetadata.query.count() == 5
         record = Record.get_record(recid)
-        assert record['remote_modified'] != test_date
+        assert record['remote_modified'] != 'Foobar'
 
 
-def test_harvest_all(app, db):
+def test_harvest_all(app, db, es):
     """Test harvest_openaire_projects."""
     with app.app_context():
         harvest_fundref(source='tests/testdata/fundref_test.rdf')

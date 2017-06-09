@@ -31,7 +31,7 @@ from invenio_records_rest import InvenioRecordsREST
 from invenio_openaire.config import OPENAIRE_REST_ENDPOINTS
 
 
-def test_records_rest(app, db, es, indexed_records):
+def test_records_rest(app, db, es, grants):
     """Test Records REST."""
     app.config['RECORDS_REST_ENDPOINTS'] = OPENAIRE_REST_ENDPOINTS
     app.config['RECORDS_REST_DEFAULT_READ_PERMISSION_FACTORY'] = None
