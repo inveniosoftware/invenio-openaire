@@ -101,10 +101,10 @@ def create_or_update_record(data, pid_type, id_key, minter):
             record.commit()
             record_id = record.id
             db.session.commit()
-            RecordIndexer().bulk_index([str(record_id), ])
+            RecordIndexer().index_by_id(str(record_id))
     except PIDDoesNotExistError:
         record = Record.create(data)
         record_id = record.id
         minter(record.id, data)
         db.session.commit()
-        RecordIndexer().bulk_index([str(record_id), ])
+        RecordIndexer().index_by_id(str(record_id))
