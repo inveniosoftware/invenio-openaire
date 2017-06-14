@@ -66,21 +66,32 @@ def loadfunders(source=None):
     type=str,
     default='projects',
     help="Set to harvest (default: projects).")
+@click.option(
+    '--all', '-A', 'all_grants',
+    default=False,
+    is_flag=True,
+    help="Harvest all grants (default: False).")
 @with_appcontext
-def loadgrants(source=None, setspec=None):
-    """Harvest grants from OpenAIRE."""
-    harvest_openaire_projects.delay(source=source, setspec=setspec)
-    click.echo("Background task sent to queue.")
+def loadgrants(source=None, setspec=None, all_grants=False):
+    """Harvest grants from OpenAIRE.
 
-
-@openaire.command()
-@with_appcontext
-def load_all_grants():
-    """Harvest all grants from OpenAIRE.
-
-    Celerybeat task for periodic re-harvesting of OpenAIRE grants.
+    :param source: Load the grants from a local sqlite db (offline).
+        The value of the parameter should be a path to the local file.
+    :type source: str
+    :param setspec: Harvest specific set through OAI-PMH
+        Creates a remote connection to OpenAIRE.
+    :type setspec: str
+    :param all_grants: Harvest all sets through OAI-PMH,
+        as specified in the configuration OPENAIRE_GRANTS_SPEC. Sets are
+        harvested sequentially in the order specified in the configuration.
+        Creates a remote connection to OpenAIRE.
+    :type all_grants: bool
     """
-    harvest_all_openaire_projects.delay()
+    if all_grants:
+        harvest_all_openaire_projects.delay()
+    else:
+        harvest_openaire_projects.delay(source=source, setspec=setspec)
+        click.echo("Background task sent to queue.")
 
 
 @openaire.command()
