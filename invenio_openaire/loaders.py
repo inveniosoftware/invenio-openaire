@@ -522,6 +522,9 @@ class FundRefDOIResolver(object):
             'fct_________::FCT': 'http://dx.doi.org/10.13039/501100001871',
             'wt__________::WT': 'http://dx.doi.org/10.13039/100004440',
             'nsf_________::NSF': 'http://dx.doi.org/10.13039/100000001',
+            'mestd_______::MESTD': 'http://dx.doi.org/10.13039/501100004564',
+            'nwo_________::NWO': 'http://dx.doi.org/10.13039/501100003246',
+            'irb_hr______::MZOS': 'http://dx.doi.org/10.13039/501100006588',
         }
         self.data = data or fixed_funders
         self.inverse_data = {v: k for k, v in self.data.items()}

@@ -62,7 +62,7 @@ def load_all_testdata():
 
 # Test the resolver rule for two possible DOI hosts: dx.doi.org and doi.org
 @pytest.mark.parametrize("doi_host", ['dx.doi.org', 'doi.org'])
-def test_funders_json_resolving(doi_host, app, db):
+def test_funders_json_resolving(doi_host, app, db, es):
     """Test the loadef for the FundRef dataset."""
     # Test loading the real FundRef dataset.
     # 'grant': {'$ref': 'https://zenodo.org/funders/10.19/11/grants/22'}
@@ -86,7 +86,7 @@ def test_funders_json_resolving(doi_host, app, db):
     assert out_json['parent']['parent']['name'] == 'University of Foo'
 
 
-def test_grants_json_resolving(app, db):
+def test_grants_json_resolving(app, db, es):
     """Test the loadef for the FundRef dataset."""
     load_grants_testdata()
     grant_ref = {'$ref': 'http://inveniosoftware.org/grants/'
