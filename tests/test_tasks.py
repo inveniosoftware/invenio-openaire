@@ -33,7 +33,7 @@ from invenio_records.models import RecordMetadata
 from invenio_openaire.tasks import harvest_fundref, harvest_openaire_projects
 
 
-def test_harvest_openaire_projects(app, db):
+def test_harvest_openaire_projects(app, db, es):
     """Test harvest_openaire_projects."""
     with app.app_context():
         # Use local OpenAIRE loader
@@ -42,7 +42,7 @@ def test_harvest_openaire_projects(app, db):
         assert RecordMetadata.query.count() == 10
 
 
-def test_harvest_fundref(app, db):
+def test_harvest_fundref(app, db, es):
     """Test harvest_openaire_projects."""
     with app.app_context():
         harvest_fundref(source='tests/testdata/fundref_test.rdf')
@@ -51,7 +51,7 @@ def test_harvest_fundref(app, db):
         assert RecordMetadata.query.count() == 5
 
 
-def test_reharvest_fundref(app, db):
+def test_reharvest_fundref(app, db, es):
     """Test harvest_openaire_projects."""
     with app.app_context():
         harvest_fundref(source='tests/testdata/fundref_test.rdf')
@@ -70,7 +70,7 @@ def test_reharvest_fundref(app, db):
         assert record['remote_modified'] != test_date
 
 
-def test_harvest_all(app, db):
+def test_harvest_all(app, db, es):
     """Test harvest_openaire_projects."""
     with app.app_context():
         harvest_fundref(source='tests/testdata/fundref_test.rdf')
