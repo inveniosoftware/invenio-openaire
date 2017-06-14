@@ -144,7 +144,7 @@ def es(app):
         list(current_search.create())
     except RequestError:
         list(current_search.delete(ignore=[404]))
-        list(current_search.create())
+        list(current_search.create(ignore=[400]))
     yield current_search
     list(current_search.delete(ignore=[404]))
 

@@ -35,14 +35,16 @@ cache:
 
 services:
   - postgresql
+  - elasticsearch
+  - redis
 
 addons:
    postgresql: "9.4"
 
 env:
-  - REQUIREMENTS=lowest ES_HOST=127.0.0.1 ES_VERSION=2.2.0 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/travis"
-  - REQUIREMENTS=release ES_HOST=127.0.0.1 ES_VERSION=2.2.0 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/travis"
-  - REQUIREMENTS=devel ES_HOST=127.0.0.1 ES_VERSION=2.2.0 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/travis"
+  - REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/travis"
+  - REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/travis"
+  - REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/travis"
 
 python:
   - "2.7"
@@ -55,11 +57,6 @@ matrix:
     - python: pypy
 
 before_install:
-  - "mkdir /tmp/elasticsearch"
-  - "wget -O - https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz | tar xz --directory=/tmp/elasticsearch --strip-components=1"
-  - "/tmp/elasticsearch/bin/plugin install -b mapper-attachments"
-  - "/tmp/elasticsearch/bin/elasticsearch &"
-  - "sleep 20"
   - "travis_retry pip install --upgrade pip setuptools py"
   - "travis_retry pip install twine wheel coveralls requirements-builder"
   - "requirements-builder --level=min setup.py > .travis-lowest-requirements.txt"
