@@ -30,7 +30,6 @@ from __future__ import absolute_import, print_function
 def indexer_receiver(sender, json=None, record=None, index=None,
                      **dummy_kwargs):
     """Connect to before_record_index signal to transform record for ES."""
-    # Inject timestamp into record.
     if index and index.startswith('grants-'):
         # Generate suggest field
         suggestions = [
@@ -47,7 +46,11 @@ def indexer_receiver(sender, json=None, record=None, index=None,
             'payload': {
                 'id': json['internal_id'],
                 'legacy_id': (json['code'] if json.get('program') == 'FP7'
-                              else json['internal_id'])
+                              else json['internal_id']),
+                'code': json['code'],
+                'title': json['title'],
+                'acronym': json.get('acronym'),
+                'program': json.get('program'),
             },
         }
     elif index and index.startswith('funders-'):
