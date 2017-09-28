@@ -144,6 +144,20 @@ def test_local_openaire_loader(app):
     assert len(records) == 10
 
 
+def test_local_openaire_loader_db_connection(app):
+    """Test the SQLite local loader."""
+    loader = LocalOAIRELoader(source='tests/testdata/openaire_test.sqlite')
+    loader._connect()
+    # connecting twice should raise an exception:
+    with pytest.raises(Exception, message='DB already connected.'):
+        loader._connect(throw=True)
+
+    loader._disconnect()
+    # disconnecting twice should raise an exception:
+    with pytest.raises(Exception, message='DB not connected.'):
+        loader._disconnect(throw=True)
+
+
 @patch('invenio_openaire.loaders.Sickle', MockSickle)
 def test_remote_openaire_loader(app, db):
     """Test the remote OAI-PMH OpenAIRE loader."""

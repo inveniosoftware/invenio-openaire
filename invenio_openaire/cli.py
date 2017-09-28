@@ -32,7 +32,7 @@ import os
 import click
 from flask.cli import with_appcontext
 
-from invenio_openaire.loaders import OAIREDumper
+from invenio_openaire.loaders import LocalOAIRELoader, OAIREDumper
 from invenio_openaire.tasks import harvest_all_openaire_projects, \
     harvest_fundref, harvest_openaire_projects, register_grant
 
@@ -64,8 +64,8 @@ def loadfunders(source=None):
 @click.option(
     '--setspec', '-s',
     type=str,
-    default='projects',
-    help="Set to harvest (default: projects).")
+    default=None,
+    help="Set to harvest.")
 @click.option(
     '--all', '-A', 'all_grants',
     default=False,
@@ -87,11 +87,22 @@ def loadgrants(source=None, setspec=None, all_grants=False):
         Creates a remote connection to OpenAIRE.
     :type all_grants: bool
     """
+    assert all_grants or setspec or source, \
+        "Either '--all', '--setspec' or '--source' is required parameter."
     if all_grants:
         harvest_all_openaire_projects.delay()
-    else:
-        harvest_openaire_projects.delay(source=source, setspec=setspec)
-        click.echo("Background task sent to queue.")
+    elif setspec:
+        click.echo("Remote grants loading sent to queue.")
+        harvest_openaire_projects.delay(setspec=setspec)
+    else:  # if source
+        loader = LocalOAIRELoader(source=source)
+        loader._connect()
+        cnt = loader._count()
+        click.echo("Sending grants to queue.")
+        with click.progressbar(loader.iter_grants(), length=cnt) as grants_bar:
+
+            for grant_json in grants_bar:
+                register_grant.delay(grant_json)
 
 
 @openaire.command()

@@ -36,7 +36,7 @@ Both FundRef dataset loaders rely on the locally stored dataset. The remote
 loader also capable of fetching it from a remote location.
 """
 
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, print_function, unicode_literals
 
 import json
 import os
@@ -50,6 +50,7 @@ from invenio_pidstore.resolver import Resolver
 from invenio_records.api import Record
 from lxml import etree
 from sickle import Sickle
+from six import text_type
 from six.moves.urllib.parse import quote_plus
 
 from . import __path__ as current_package
@@ -110,8 +111,8 @@ class BaseOAIRELoader(object):
     def get_text_node(self, tree, xpath_str):
         """Return a text node from given XML tree given an lxml XPath."""
         try:
-            return tree.xpath(xpath_str, namespaces=self.namespaces)[0].text \
-                or ''
+            text = tree.xpath(xpath_str, namespaces=self.namespaces)[0].text
+            return text_type(text) if text else ''
         except IndexError:  # pragma: nocover
             return ''
 
@@ -194,9 +195,9 @@ class BaseOAIRELoader(object):
         internal_id = "{0}::{1}".format(funder['doi'], code)
         eurepo_id = \
             "info:eu-repo/grantAgreement/{funder}/{program}/{code}/".format(
-                funder=quote_plus(funder['name']),
-                program=quote_plus(funder['program']),
-                code=quote_plus(code), )
+                funder=quote_plus(funder['name'].encode('utf8')),
+                program=quote_plus(funder['program'].encode('utf8')),
+                code=quote_plus(code.encode('utf8')), )
 
         ret_json = {
             '$schema': self.schema_formatter.schema_url,
@@ -244,15 +245,39 @@ class LocalOAIRELoader(BaseOAIRELoader):
             **kwargs)
         self.db_connection = None
 
-    def iter_grants(self, as_json=True):
-        """Fetch records from the SQLite database."""
-        self.db_connection = sqlite3.connect(self.source)
+    def _is_connected(self):
+        return self.db_connection is not None
+
+    def _connect(self, throw=False):
+        if self._is_connected():
+            if throw:
+                raise Exception("DB already connected.")
+        else:
+            self.db_connection = sqlite3.connect(self.source)
+
+    def _disconnect(self, throw=False):
+        if self._is_connected():
+            self.db_connection.close()
+            self.db_connection = None
+        else:
+            if throw:
+                raise Exception("DB not connected.")
+
+    def _count(self):
         n_grants, = self.db_connection.cursor().execute(
             "SELECT COUNT(1) from grants").fetchone()
+        return int(n_grants)
+
+    def iter_grants(self, as_json=True):
+        """Fetch records from the SQLite database."""
+        self._connect()
+        n_grants, = self.db_connection.cursor().execute(
+            "SELECT COUNT(1) from grants").fetchone()
+        n_grants = self._count()
         result = self.db_connection.cursor().execute(
             "SELECT data, format FROM grants"
         )
-        for _ in range(int(n_grants)):
+        for _ in range(n_grants):
             data, data_format = result.fetchone()
             if (not as_json) and data_format == 'json':
                 raise Exception("Cannot convert JSON source to XML output.")
@@ -261,7 +286,7 @@ class LocalOAIRELoader(BaseOAIRELoader):
             elif as_json and data_format == 'json':
                 data = json.loads(data)
             yield data
-        self.db_connection.close()
+        self._disconnect()
 
 
 class RemoteOAIRELoader(BaseOAIRELoader):
