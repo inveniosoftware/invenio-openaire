@@ -62,12 +62,17 @@ OPENAIRE_GRANTS_SPECS = [
     'ARCProjects',
     'ECProjects',
     'FCTProjects',
+    'FWFProjects',
+    'HRZZProjects',
     'MESTDProjects',
     'MZOSProjects',
     'NHMRCProjects',
-    'NWOProjects',
-    'WTProjects',
+    'NIHProjects',
     'NSFProjects',
+    'NWOProjects',
+    'SFIProjects',
+    'SNSFProjects',
+    'WTProjects',
 ]
 
 
