@@ -176,13 +176,20 @@ class BaseOAIRELoader(object):
     def grantxml2json(self, grant_xml):
         """Convert OpenAIRE grant XML into JSON."""
         tree = etree.fromstring(grant_xml)
-        ptree = self.get_subtree(
-            tree, '/oai:record/oai:metadata/oaf:entity/oaf:project')[0]
+        # XML harvested from OAI-PMH has a different format/structure
+        if tree.prefix == 'oai':
+            ptree = self.get_subtree(
+                tree, '/oai:record/oai:metadata/oaf:entity/oaf:project')[0]
+            header = self.get_subtree(tree, '/oai:record/oai:header')[0]
+            oai_id = self.get_text_node(header, 'oai:identifier')
+            modified = self.get_text_node(header, 'oai:datestamp')
+        else:
+            ptree = self.get_subtree(
+                tree, '/record/result/metadata/oaf:entity/oaf:project')[0]
+            header = self.get_subtree(tree, '/record/result/header')[0]
+            oai_id = self.get_text_node(header, 'dri:objIdentifier')
+            modified = self.get_text_node(header, 'dri:dateOfTransformation')
 
-        oai_id = self.get_text_node(
-            tree, '/oai:record/oai:header/oai:identifier')
-        modified = self.get_text_node(
-            tree, '/oai:record/oai:header/oai:datestamp')
         url = self.get_text_node(ptree, 'websiteurl')
         code = self.get_text_node(ptree, 'code')
         title = self.get_text_node(ptree, 'title')
@@ -271,14 +278,10 @@ class LocalOAIRELoader(BaseOAIRELoader):
     def iter_grants(self, as_json=True):
         """Fetch records from the SQLite database."""
         self._connect()
-        n_grants, = self.db_connection.cursor().execute(
-            "SELECT COUNT(1) from grants").fetchone()
-        n_grants = self._count()
         result = self.db_connection.cursor().execute(
             "SELECT data, format FROM grants"
         )
-        for _ in range(n_grants):
-            data, data_format = result.fetchone()
+        for data, data_format in result:
             if (not as_json) and data_format == 'json':
                 raise Exception("Cannot convert JSON source to XML output.")
             elif as_json and data_format == 'xml':

@@ -48,6 +48,7 @@ OPENAIRE_FUNDREF_NAMESPACES = {
 }
 
 OPENAIRE_OAIPMH_NAMESPACES = {
+    'dri': 'http://www.driver-repository.eu/namespace/dri',
     'oai': 'http://www.openarchives.org/OAI/2.0/',
     'oaf': 'http://namespace.openaire.eu/oaf',
 }

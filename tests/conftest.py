@@ -38,8 +38,8 @@ from flask import Flask
 from flask.cli import ScriptInfo
 from flask_login import LoginManager
 from invenio_celery import InvenioCelery
-from invenio_db import db as db_
 from invenio_db import InvenioDB
+from invenio_db import db as db_
 from invenio_indexer import InvenioIndexer
 from invenio_indexer.api import RecordIndexer
 from invenio_jsonschemas import InvenioJSONSchemas
