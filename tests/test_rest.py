@@ -27,6 +27,7 @@
 from __future__ import absolute_import, print_function
 
 from invenio_records_rest import InvenioRecordsREST
+from invenio_records_rest.views import create_blueprint
 
 from invenio_openaire.config import OPENAIRE_REST_ENDPOINTS
 
@@ -36,6 +37,9 @@ def test_records_rest(app, db, es, grants):
     app.config['RECORDS_REST_ENDPOINTS'] = OPENAIRE_REST_ENDPOINTS
     app.config['RECORDS_REST_DEFAULT_READ_PERMISSION_FACTORY'] = None
     InvenioRecordsREST(app)
+    # invenio-records-rest >= 1.1.0 doesn't automatically register endpoints
+    if 'invenio_records_rest.frdoi_item' not in app.url_map._rules_by_endpoint:
+        app.register_blueprint(create_blueprint(OPENAIRE_REST_ENDPOINTS))
 
     with app.test_client() as client:
         # Item
