@@ -1,13 +1,14 @@
 ===========================
- Invenio-OpenAIRE v1.0.0a11
+ Invenio-OpenAIRE v1.0.0a12
 ===========================
 
-Invenio-OpenAIRE v1.0.0a11 was released on November 16, 2017.
+Invenio-OpenAIRE v1.0.0a12 was released on August 3, 2018.
 
 About
 -----
 
-Invenio module providing integration between Invenio repositories and the OpenAIRE service.
+Invenio module providing integration between Invenio repositories and the
+OpenAIRE service.
 
 *This is an experimental developer preview release.*
 
@@ -19,7 +20,7 @@ What's new
 Installation
 ------------
 
-   $ pip install invenio-openaire==1.0.0a11
+   $ pip install invenio-openaire==1.0.0a12
 
 Documentation
 -------------
