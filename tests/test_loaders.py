@@ -79,7 +79,7 @@ def test_local_fundref_loader(app):
     # Test loading the real FundRef dataset.
     frl = LocalFundRefLoader()
     json_dataset = list(frl.iter_funders())
-    assert len(json_dataset) == 11565  # Current FundRef dataset size
+    assert len(json_dataset) == 18067  # Current FundRef dataset size
 
 
 def test_local_fundref_convert(app):

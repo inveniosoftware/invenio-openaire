@@ -42,6 +42,7 @@ import json
 import os
 import sqlite3
 import xml.etree.ElementTree as ET
+from gzip import GzipFile
 
 import requests
 from flask import current_app
@@ -50,7 +51,7 @@ from invenio_pidstore.resolver import Resolver
 from invenio_records.api import Record
 from lxml import etree
 from sickle import Sickle
-from six import text_type
+from six import string_types, text_type
 from six.moves.urllib.parse import quote_plus
 
 from . import __path__ as current_package
@@ -518,9 +519,15 @@ class LocalFundRefLoader(BaseFundRefLoader):
         """Init the local loader."""
         super(LocalFundRefLoader, self).__init__(
             namespaces=namespaces, cc_resolver=cc_resolver)
-        self.source = source or \
-            os.path.join(current_package[0],
-                         current_app.config['OPENAIRE_FUNDREF_LOCAL_SOURCE'])
+        source = source or os.path.join(
+            current_package[0],
+            current_app.config['OPENAIRE_FUNDREF_LOCAL_SOURCE'])
+
+        if isinstance(source, string_types) and source.endswith('.gz'):
+            self.source = GzipFile(source)
+        else:
+            self.source = source
+
         self.doc_root = ET.parse(self.source).getroot()
 
 

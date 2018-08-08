@@ -29,7 +29,7 @@ from __future__ import absolute_import, print_function
 from invenio_records_rest.facets import terms_filter
 from invenio_records_rest.utils import allow_all
 
-OPENAIRE_FUNDREF_LOCAL_SOURCE = 'data/fundref_registry.rdf'
+OPENAIRE_FUNDREF_LOCAL_SOURCE = 'data/fundref_registry.rdf.gz'
 OPENAIRE_FUNDREF_ENDPOINT = 'http://dx.doi.org/10.13039/fundref_registry'
 OPENAIRE_CC_SOURCE = 'data/geonames2countrycodes_iso_3166.txt'
 OPENAIRE_OAI_LOCAL_SOURCE = ''  # Large file that requires separate download
