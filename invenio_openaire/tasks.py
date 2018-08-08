@@ -74,7 +74,7 @@ def harvest_all_openaire_projects():
 @shared_task(ignore_result=True)
 def register_funder(data):
     """Register the funder JSON in records and create a PID."""
-    create_or_update_record(data, 'frdoi',  'doi', funder_minter)
+    create_or_update_record(data, 'frdoi', 'doi', funder_minter)
 
 
 @shared_task(ignore_result=True)
@@ -92,7 +92,7 @@ def create_or_update_record(data, pid_type, id_key, minter):
         pid, record = resolver.resolve(data[id_key])
         data_c = deepcopy(data)
         del data_c['remote_modified']
-        record_c = deepcopy(data)
+        record_c = deepcopy(record)
         del record_c['remote_modified']
         # All grants on OpenAIRE are modified periodically even if nothing
         # has changed. We need to check for actual differences in the metadata
