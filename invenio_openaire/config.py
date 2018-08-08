@@ -37,14 +37,14 @@ OPENAIRE_OAIPMH_ENDPOINT = 'http://api.openaire.eu/oai_pmh'
 OPENAIRE_OAIPMH_DEFAULT_SET = 'projects'
 
 OPENAIRE_FUNDREF_NAMESPACES = {
-    'rdf': "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    'xml': "http://www.w3.org/XML/1998/namespace",
-    'dct': "http://purl.org/dc/terms/",
-    'skos': "http://www.w3.org/2004/02/skos/core#",
-    'skosxl': "http://www.w3.org/2008/05/skos-xl#",
-    'svf': "http://data.fundref.org/xml/schema/grant/grant-1.2/",
-    'rdfs': "http://www.w3.org/2000/01/rdf-schema#",
-    'fref': "http://data.fundref.org/terms",
+    'dct': 'http://purl.org/dc/terms/',
+    'fref': 'http://data.fundref.org/terms',
+    'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
+    'skos': 'http://www.w3.org/2004/02/skos/core#',
+    'skosxl': 'http://www.w3.org/2008/05/skos-xl#',
+    'svf': 'http://data.fundref.org/xml/schema/grant/grant-1.2/',
+    'xml': 'http://www.w3.org/XML/1998/namespace',
 }
 
 OPENAIRE_OAIPMH_NAMESPACES = {
