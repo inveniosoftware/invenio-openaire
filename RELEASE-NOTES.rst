@@ -1,8 +1,8 @@
 ===========================
- Invenio-OpenAIRE v1.0.0a12
+ Invenio-OpenAIRE v1.0.0a13
 ===========================
 
-Invenio-OpenAIRE v1.0.0a12 was released on August 3, 2018.
+Invenio-OpenAIRE v1.0.0a13 was released on August 8, 2018.
 
 About
 -----
@@ -20,7 +20,7 @@ What's new
 Installation
 ------------
 
-   $ pip install invenio-openaire==1.0.0a12
+   $ pip install invenio-openaire==1.0.0a13
 
 Documentation
 -------------
