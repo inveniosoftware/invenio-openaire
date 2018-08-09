@@ -562,8 +562,10 @@ class FundRefDOIResolver(object):
             'nih_________::NIH': 'http://dx.doi.org/10.13039/100000002',
             'nsf_________::NSF': 'http://dx.doi.org/10.13039/100000001',
             'nwo_________::NWO': 'http://dx.doi.org/10.13039/501100003246',
+            'rcuk________::RCUK': 'http://dx.doi.org/10.13039/501100000690',
             'sfi_________::SFI': 'http://dx.doi.org/10.13039/501100001602',
             'snsf________::SNSF': 'http://dx.doi.org/10.13039/501100001711',
+            'tubitakf____::tubitak': 'http://dx.doi.org/10.13039/501100004410',
             'wt__________::WT': 'http://dx.doi.org/10.13039/100004440',
         }
         self.data = data or fixed_funders
