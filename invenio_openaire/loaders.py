@@ -448,10 +448,6 @@ class BaseFundRefLoader(object):
             "http://dx.doi.org/" + doi)
         name = node.find('./skosxl:prefLabel/skosxl:Label/skosxl:literalForm',
                          namespaces=self.namespaces).text
-        acronyms = [acronym.text for acronym in node.findall(
-            './skosxl:altLabel/skosxl:Label/skosxl:literalForm',
-            namespaces=self.namespaces)]
-
         # Extract acronyms
         acronyms = []
         for n in node.findall('./skosxl:altLabel/skosxl:Label',
@@ -459,7 +455,8 @@ class BaseFundRefLoader(object):
             usagenode = n.find('./fref:usageFlag', namespaces=self.namespaces)
             if usagenode is not None:
                 if self.get_attrib(usagenode, 'rdf:resource') == \
-                        "http://data.fundref.org/vocabulary/abbrevName":
+                        ('http://data.crossref.org/fundingdata'
+                         '/vocabulary/abbrevName'):
                     label = n.find('./skosxl:literalForm',
                                    namespaces=self.namespaces)
                     if label is not None:

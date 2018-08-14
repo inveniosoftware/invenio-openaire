@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:dct="http://purl.org/dc/terms/" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:skosxl="http://www.w3.org/2008/05/skos-xl#" xmlns:svf="http://data.crossref.org/fundingdata/xml/schema/grant/grant-1.2/" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:fref="http://data.crossref.org/fundingdata/terms">
     <skos:Concept rdf:about="http://dx.doi.org/10.13039/001">
-      <skos:inScheme rdf:resource="http://data.fundref.org/vocabulary" />
+      <skos:inScheme rdf:resource="http://data.crossref.org/fundingdata/vocabulary" />
       <skosxl:prefLabel>
-         <skosxl:Label rdf:about="http://data.fundref.org/vocabulary/Label-36515">
+         <skosxl:Label rdf:about="http://data.crossref.org/fundingdata/vocabulary/Label-36515">
             <skosxl:literalForm xml:lang="en">University of Foo</skosxl:literalForm>
          </skosxl:Label>
       </skosxl:prefLabel>
       <skosxl:altLabel>
-         <skosxl:Label rdf:about="http://data.fundref.org/vocabulary/Label-36516">
+         <skosxl:Label rdf:about="http://data.crossref.org/fundingdata/vocabulary/Label-36516">
             <skosxl:literalForm xml:lang="en">UoF</skosxl:literalForm>
-            <fref:usageFlag rdf:resource="http://data.fundref.org/vocabulary/abbrevName" />
+            <fref:usageFlag rdf:resource="http://data.crossref.org/fundingdata/vocabulary/abbrevName" />
          </skosxl:Label>
       </skosxl:altLabel>
       <skosxl:altLabel>
-         <skosxl:Label rdf:about="http://data.fundref.org/vocabulary/Label-36516">
+         <skosxl:Label rdf:about="http://data.crossref.org/fundingdata/vocabulary/Label-36516">
             <skosxl:literalForm xml:lang="en">UOF</skosxl:literalForm>
-            <fref:usageFlag rdf:resource="http://data.fundref.org/vocabulary/abbrevName" />
+            <fref:usageFlag rdf:resource="http://data.crossref.org/fundingdata/vocabulary/abbrevName" />
          </skosxl:Label>
       </skosxl:altLabel>
       <skos:narrower rdf:resource="http://dx.doi.org/10.13039/002" />
@@ -29,16 +29,16 @@
       <svf:fundingBodySubType>federal/national government</svf:fundingBodySubType>
    </skos:Concept>
    <skos:Concept rdf:about="http://dx.doi.org/10.13039/002">
-      <skos:inScheme rdf:resource="http://data.fundref.org/vocabulary" />
+      <skos:inScheme rdf:resource="http://data.crossref.org/fundingdata/vocabulary" />
       <skosxl:prefLabel>
-         <skosxl:Label rdf:about="http://data.fundref.org/vocabulary/Label-36519">
+         <skosxl:Label rdf:about="http://data.crossref.org/fundingdata/vocabulary/Label-36519">
             <skosxl:literalForm xml:lang="en">Department of Bar</skosxl:literalForm>
          </skosxl:Label>
       </skosxl:prefLabel>
       <skosxl:altLabel>
-         <skosxl:Label rdf:about="http://data.fundref.org/vocabulary/Label-36520">
+         <skosxl:Label rdf:about="http://data.crossref.org/fundingdata/vocabulary/Label-36520">
             <skosxl:literalForm xml:lang="en">DoB</skosxl:literalForm>
-            <fref:usageFlag rdf:resource="http://data.fundref.org/vocabulary/abbrevName" />
+            <fref:usageFlag rdf:resource="http://data.crossref.org/fundingdata/vocabulary/abbrevName" />
          </skosxl:Label>
       </skosxl:altLabel>
       <skos:broader rdf:resource="http://dx.doi.org/10.13039/001" />
@@ -51,24 +51,24 @@
       <svf:fundingBodySubType>federal/national government</svf:fundingBodySubType>
    </skos:Concept>
    <skos:Concept rdf:about="http://dx.doi.org/10.13039/003">
-      <skos:inScheme rdf:resource="http://data.fundref.org/vocabulary" />
+      <skos:inScheme rdf:resource="http://data.crossref.org/fundingdata/vocabulary" />
       <skosxl:prefLabel>
-         <skosxl:Label rdf:about="http://data.fundref.org/vocabulary/Label-36509">
+         <skosxl:Label rdf:about="http://data.crossref.org/fundingdata/vocabulary/Label-36509">
             <skosxl:literalForm xml:lang="en">Department of Eggs</skosxl:literalForm>
          </skosxl:Label>
       </skosxl:prefLabel>
       <skosxl:altLabel>
-         <skosxl:Label rdf:about="http://data.fundref.org/vocabulary/Label-449232">
+         <skosxl:Label rdf:about="http://data.crossref.org/fundingdata/vocabulary/Label-449232">
             <skosxl:literalForm xml:lang="en">EggsDept</skosxl:literalForm>
          </skosxl:Label>
       </skosxl:altLabel>
       <skosxl:altLabel>
-         <skosxl:Label rdf:about="http://data.fundref.org/vocabulary/Label-449232">
+         <skosxl:Label rdf:about="http://data.crossref.org/fundingdata/vocabulary/Label-449232">
             <skosxl:literalForm xml:lang="en">DoE</skosxl:literalForm>
          </skosxl:Label>
       </skosxl:altLabel>
       <skosxl:altLabel>
-         <skosxl:Label rdf:about="http://data.fundref.org/vocabulary/Label-449232">
+         <skosxl:Label rdf:about="http://data.crossref.org/fundingdata/vocabulary/Label-449232">
             <skosxl:literalForm xml:lang="en">DOE</skosxl:literalForm>
          </skosxl:Label>
       </skosxl:altLabel>
@@ -81,16 +81,16 @@
       <svf:fundingBodySubType>corporate</svf:fundingBodySubType>
    </skos:Concept>
    <skos:Concept rdf:about="http://dx.doi.org/10.13039/004">
-      <skos:inScheme rdf:resource="http://data.fundref.org/vocabulary" />
+      <skos:inScheme rdf:resource="http://data.crossref.org/fundingdata/vocabulary" />
       <skosxl:prefLabel>
-         <skosxl:Label rdf:about="http://data.fundref.org/vocabulary/Label-36501">
+         <skosxl:Label rdf:about="http://data.crossref.org/fundingdata/vocabulary/Label-36501">
             <skosxl:literalForm xml:lang="en">Faculty of Spam</skosxl:literalForm>
          </skosxl:Label>
       </skosxl:prefLabel>
       <skosxl:altLabel>
-         <skosxl:Label rdf:about="http://data.fundref.org/vocabulary/Label-36502">
+         <skosxl:Label rdf:about="http://data.crossref.org/fundingdata/vocabulary/Label-36502">
             <skosxl:literalForm xml:lang="en">FoS</skosxl:literalForm>
-            <fref:usageFlag rdf:resource="http://data.fundref.org/vocabulary/abbrevName" />
+            <fref:usageFlag rdf:resource="http://data.crossref.org/fundingdata/vocabulary/abbrevName" />
          </skosxl:Label>
       </skosxl:altLabel>
       <skos:broader rdf:resource="http://dx.doi.org/10.13039/002" />
@@ -102,16 +102,16 @@
       <svf:fundingBodySubType>federal/national government</svf:fundingBodySubType>
    </skos:Concept>
    <skos:Concept rdf:about="http://dx.doi.org/10.13039/501100000923">
-      <skos:inScheme rdf:resource="http://data.fundref.org/vocabulary" />
+      <skos:inScheme rdf:resource="http://data.crossref.org/fundingdata/vocabulary" />
       <skosxl:prefLabel>
-         <skosxl:Label rdf:about="http://data.fundref.org/vocabulary/Label-36501">
+         <skosxl:Label rdf:about="http://data.crossref.org/fundingdata/vocabulary/Label-36501">
             <skosxl:literalForm xml:lang="en">University of Bacon</skosxl:literalForm>
          </skosxl:Label>
       </skosxl:prefLabel>
       <skosxl:altLabel>
-         <skosxl:Label rdf:about="http://data.fundref.org/vocabulary/Label-36502">
+         <skosxl:Label rdf:about="http://data.crossref.org/fundingdata/vocabulary/Label-36502">
             <skosxl:literalForm xml:lang="en">UoB</skosxl:literalForm>
-            <fref:usageFlag rdf:resource="http://data.fundref.org/vocabulary/abbrevName" />
+            <fref:usageFlag rdf:resource="http://data.crossref.org/fundingdata/vocabulary/abbrevName" />
          </skosxl:Label>
       </skosxl:altLabel>
       <dct:modified>2015-08-28T13:00:00.000000</dct:modified>
