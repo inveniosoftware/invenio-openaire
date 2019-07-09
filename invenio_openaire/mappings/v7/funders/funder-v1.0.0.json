@@ -1,0 +1,53 @@
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "doi": {
+        "type": "keyword"
+      },
+      "identifiers": {
+        "type": "object",
+        "properties": {
+          "oaf": {
+            "type": "keyword"
+          }
+        }
+      },
+      "name": {
+        "type": "text"
+      },
+      "acronyms": {
+        "type": "text"
+      },
+      "country": {
+        "type": "keyword"
+      },
+      "type": {
+        "type": "keyword"
+      },
+      "subtype": {
+        "type": "keyword"
+      },
+      "remote_created": {
+        "type": "date"
+      },
+      "remote_modified": {
+        "type": "date"
+      },
+      "parent": {
+        "type": "object",
+        "properties": {
+          "$ref": {
+            "type": "keyword"
+          }
+        }
+      },
+      "suggest": {
+        "type": "completion",
+        "analyzer" : "snowball",
+        "search_analyzer" : "snowball"
+      }
+    }
+  }
+}
