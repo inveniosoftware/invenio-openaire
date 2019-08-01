@@ -133,13 +133,15 @@ def test_local_openaire_loader_db_connection(app):
     loader = LocalOAIRELoader(source='tests/testdata/openaire_test.sqlite')
     loader._connect()
     # connecting twice should raise an exception:
-    with pytest.raises(Exception, message='DB already connected.'):
+    with pytest.raises(Exception) as e:
         loader._connect(throw=True)
+    assert str(e.value) == 'DB already connected.'
 
     loader._disconnect()
     # disconnecting twice should raise an exception:
-    with pytest.raises(Exception, message='DB not connected.'):
+    with pytest.raises(Exception) as e:
         loader._disconnect(throw=True)
+    assert str(e.value) == 'DB not connected.'
 
 
 @patch('invenio_openaire.loaders.Sickle', MockSickle)
