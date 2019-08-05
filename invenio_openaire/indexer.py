@@ -57,7 +57,6 @@ def indexer_receiver(sender, json=None, record=None, index=None,
                 },
             }
 
-
         elif ES_VERSION[0] > 2:
             # Generate suggest field
             suggestions = [
