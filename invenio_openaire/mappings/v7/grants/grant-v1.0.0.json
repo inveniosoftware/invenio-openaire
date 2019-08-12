@@ -89,8 +89,8 @@
       },
       "suggest": {
         "type": "completion",
-        "analyzer" : "snowball",
-        "search_analyzer" : "snowball",
+        "analyzer" : "standard",
+        "search_analyzer" : "standard",
         "contexts": [{
               "name" : "funder",
               "type": "category",
