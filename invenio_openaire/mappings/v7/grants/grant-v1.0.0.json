@@ -9,6 +9,9 @@
       "internal_id": {
         "type": "keyword"
       },
+      "legacy_id": {
+        "type": "keyword"
+      },
       "code": {
         "type": "keyword"
       },
@@ -89,13 +92,15 @@
       },
       "suggest": {
         "type": "completion",
-        "analyzer" : "standard",
-        "search_analyzer" : "standard",
-        "contexts": [{
-              "name" : "funder",
-              "type": "category",
-              "path": "funder.doi"
-        }]
+        "analyzer": "standard",
+        "search_analyzer": "standard",
+        "contexts": [
+          {
+            "name": "funder",
+            "type": "category",
+            "path": "funder.doi"
+          }
+        ]
       }
     }
   }

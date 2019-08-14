@@ -10,6 +10,9 @@
         "internal_id": {
           "type": "keyword"
         },
+        "legacy_id": {
+          "type": "keyword"
+        },
         "code": {
           "type": "keyword"
         },

@@ -122,7 +122,7 @@ OPENAIRE_REST_ENDPOINTS = dict(
         suggesters=dict(
             text=dict(completion=dict(
                 field='suggest',
-                context='funder',
+                contexts='funder',
             ))
         ),
         read_permission_factory_imp=allow_all,

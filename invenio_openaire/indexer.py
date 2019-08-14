@@ -70,6 +70,8 @@ def indexer_receiver(sender, json=None, record=None, index=None,
                     'funder': [json['funder']['doi']]
                 }
             }
+            json['legacy_id'] = json['code'] if json.get('program') == 'FP7' \
+                else json['internal_id']
 
     elif index and index.startswith('funders-'):
         if ES_VERSION[0] == 2:
