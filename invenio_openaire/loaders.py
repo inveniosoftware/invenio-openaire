@@ -521,8 +521,9 @@ class RemoteFundRefLoader(BaseFundRefLoader):
             namespaces=namespaces, cc_resolver=cc_resolver)
         self.source = source or \
             current_app.config['OPENAIRE_FUNDREF_ENDPOINT']
-        obj = requests.get(self.source, stream=True)
-        funders_xml = obj.text
+        headers = {"Content-Type": "application/rdf+xml"}
+        obj = requests.get(self.source, stream=True, headers=headers)
+        funders_xml = obj.text.encode('utf-8')
         self.doc_root = ET.fromstring(funders_xml)
 
 
