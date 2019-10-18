@@ -37,7 +37,7 @@ class mock_requests(object):
             self.text = text
 
     @classmethod
-    def get(cls, source, stream=True):
+    def get(cls, source, stream=True, headers=None):
         """Mock the get method."""
         testdata_path = os.path.join(os.path.dirname(__file__),
                                      'testdata/fundref_test.rdf')
