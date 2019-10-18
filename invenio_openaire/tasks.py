@@ -61,7 +61,7 @@ def register_funder(data):
     create_or_update_record(data, 'frdoi', 'doi', funder_minter)
 
 
-@shared_task(ignore_result=True)
+@shared_task(ignore_result=True, rate_limit='20/s')
 def register_grant(data):
     """Register the grant JSON in records and create a PID."""
     create_or_update_record(data, 'grant', 'internal_id', grant_minter)
