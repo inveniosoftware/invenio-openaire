@@ -532,25 +532,7 @@ class FundRefDOIResolver(object):
 
     def __init__(self, data=None):
         """Init the resolver."""
-        fixed_funders = {
-            'arc_________::ARC': 'http://dx.doi.org/10.13039/501100000923',
-            'ec__________::EC': 'http://dx.doi.org/10.13039/501100000780',
-            'fct_________::FCT': 'http://dx.doi.org/10.13039/501100001871',
-            'fwf_________::FWF': 'http://dx.doi.org/10.13039/501100002428',
-            'irb_hr______::HRZZ': 'http://dx.doi.org/10.13039/501100004488',
-            'irb_hr______::MZOS': 'http://dx.doi.org/10.13039/501100006588',
-            'mestd_______::MESTD': 'http://dx.doi.org/10.13039/501100004564',
-            'nhmrc_______::NHMRC': 'http://dx.doi.org/10.13039/501100000925',
-            'nih_________::NIH': 'http://dx.doi.org/10.13039/100000002',
-            'nsf_________::NSF': 'http://dx.doi.org/10.13039/100000001',
-            'nwo_________::NWO': 'http://dx.doi.org/10.13039/501100003246',
-            'rcuk________::RCUK': 'http://dx.doi.org/10.13039/501100000690',
-            'sfi_________::SFI': 'http://dx.doi.org/10.13039/501100001602',
-            'snsf________::SNSF': 'http://dx.doi.org/10.13039/501100001711',
-            'tubitakf____::tubitak': 'http://dx.doi.org/10.13039/501100004410',
-            'wt__________::WT': 'http://dx.doi.org/10.13039/100004440',
-        }
-        self.data = data or fixed_funders
+        self.data = data or current_app.config['OPENAIRE_FIXED_FUNDERS']
         self.inverse_data = {v: k for k, v in self.data.items()}
 
     def resolve_by_id(self, funder_id):
