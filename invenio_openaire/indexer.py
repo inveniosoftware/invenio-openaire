@@ -17,13 +17,16 @@ def indexer_receiver(sender, json=None, record=None, index=None,
                      **dummy_kwargs):
     """Connect to before_record_index signal to transform record for ES."""
     if index and index.startswith('grants-'):
-        if ES_VERSION[0] == 2:
-            # Generate suggest field
-            suggestions = [
-                json.get('code'),
+        code = json.get('code')
+        suggestions = [
+                code,
                 json.get('acronym'),
                 json.get('title')
             ]
+        if code and "_" in code:
+            suggestions.extend(code.split("_"))
+        if ES_VERSION[0] == 2:
+            # Generate suggest field
             json['suggest'] = {
                 'input': [s for s in suggestions if s],
                 'output': json['title'],
@@ -43,11 +46,6 @@ def indexer_receiver(sender, json=None, record=None, index=None,
 
         elif ES_VERSION[0] > 2:
             # Generate suggest field
-            suggestions = [
-                json.get('code'),
-                json.get('acronym'),
-                json.get('title')
-            ]
             json['suggest'] = {
                 'input': [s for s in suggestions if s],
                 'contexts': {
@@ -58,9 +56,9 @@ def indexer_receiver(sender, json=None, record=None, index=None,
                 else json['internal_id']
 
     elif index and index.startswith('funders-'):
+        suggestions = json.get('acronyms', []) + [json.get('name')]
         if ES_VERSION[0] == 2:
             # Generate suggest field
-            suggestions = json.get('acronyms', []) + [json.get('name')]
             json['suggest'] = {
                 'input': [s for s in suggestions if s],
                 'output': json['name'],
@@ -70,7 +68,6 @@ def indexer_receiver(sender, json=None, record=None, index=None,
             }
 
         elif ES_VERSION[0] > 2:
-            suggestions = json.get('acronyms', []) + [json.get('name')]
             json['suggest'] = {
                 'input': [s for s in suggestions if s],
             }
