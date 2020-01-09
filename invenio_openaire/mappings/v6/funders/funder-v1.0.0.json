@@ -19,7 +19,7 @@
           "type": "text"
         },
         "acronyms": {
-          "type": "text"
+          "type": "keyword"
         },
         "country": {
           "type": "keyword"

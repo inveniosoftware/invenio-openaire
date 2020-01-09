@@ -19,7 +19,7 @@
         "type": "text"
       },
       "acronym": {
-        "type": "text"
+        "type": "keyword"
       },
       "startdate": {
         "type": "date",
@@ -47,7 +47,7 @@
             "type": "text"
           },
           "acronyms": {
-            "type": "text"
+            "type": "keyword"
           },
           "country": {
             "type": "keyword"
