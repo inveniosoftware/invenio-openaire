@@ -10,8 +10,8 @@
  Invenio-OpenAIRE
 ==================
 
-.. image:: https://img.shields.io/travis/inveniosoftware/invenio-openaire.svg
-        :target: https://travis-ci.org/inveniosoftware/invenio-openaire
+.. image:: https://github.com/inveniosoftware/invenio-openaire/workflows/CI/badge.svg
+        :target: https://github.com/inveniosoftware/invenio-openaire/actions?query=workflow%3ACI
 
 .. image:: https://img.shields.io/coveralls/inveniosoftware/invenio-openaire.svg
         :target: https://coveralls.io/r/inveniosoftware/invenio-openaire

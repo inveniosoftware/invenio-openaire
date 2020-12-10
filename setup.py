@@ -16,24 +16,18 @@ readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
 
 tests_require = [
-    'check-manifest>=0.25',
-    'coverage>=4.0',
     'invenio-celery>=1.1.0',
     'invenio-db>=1.0.1',
-    'isort>=4.2.2',
     'jsonschema>=2.5.1',
     'mock>=1.3.0',
-    'pydocstyle>=1.0.0',
-    'pytest-cov>=1.8.0',
-    'pytest-pep8>=1.0.6',
-    'pytest>=2.8.0',
+    'pytest-invenio>=1.4.0'
 ]
 
 invenio_search_version = '1.2.0'
 
 extras_require = {
     'docs': [
-        'Sphinx>=1.4.2',
+        'Sphinx>=3',
     ],
     'elasticsearch2': [
         'invenio-search[elasticsearch2]>={}'.format(invenio_search_version),
@@ -65,7 +59,7 @@ setup_requires = [
 
 install_requires = [
     'Flask>=0.11.1',
-    'Flask-BabelEx>=0.9.2',
+    'Flask-BabelEx>=0.9.3',
     'Flask-Login>=0.3.2',
     'invenio-indexer>=1.1.0',
     'invenio-jsonschemas>=1.0.0',
@@ -76,7 +70,7 @@ install_requires = [
     'jsonresolver>=0.2.1',
     'requests>=2.9.1',
     'sickle>=0.5.0',
-    'six>=1.10.0',
+    'six>=1.11.0',
 ]
 
 packages = find_packages()
