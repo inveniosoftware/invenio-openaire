@@ -217,40 +217,30 @@ class BaseOAIRELoader(object):
 
     def grantjson2json(self, grant_json):
         """Convert OpenAIRE grant JSON into comptaible JSON."""
-        funder_doi = current_app.config["OPENAIRE_FIXED_FUNDERS"]['aka_________::AKA'].replace('http://dx.doi.org/', '')  # data is available, just have to be decided how it is fetched depending on the final integration
-        
-        to_replace = 0  # Code used to generate eurepo identifier
+        funder_doi = current_app.config["OPENAIRE_FIXED_FUNDERS"]['aka_________::AKA'].replace('http://dx.doi.org/', '')  # make this dynamic
 
         grant_id = grant_json["code"]
         id_ = f"{funder_doi}::{grant_id}"
 
         ret_json = {
-            "created": datetime.isoformat(datetime.now()),
-            "id": id_,
-            "links": {
-                "self": f"https://zenodo.org/api/grants/{id_}"
+            "$schema": "",  # self.schema_formatter.schema_url,
+            "acronym": grant_json.get("acronym", ""),
+            "code": grant_id,
+            "enddate": grant_json.get("enddate", ""),
+            "funder": {
+                "$ref": "http://dx.doi.org/{}".format(funder_doi)
             },
-            "metadata": {
-                "$schema": self.schema_formatter.schema_url,
-                "acronym": grant_json.get("acronym", ""),
-                "code": grant_id,
-                "enddate": grant_json.get("enddate", ""),
-                "funder": {
-                    "$ref": "http://dx.doi.org/{}".format(funder_doi)
-                },
-                "identifiers": {
-                    "eurepo": "info:eu-repo/grantAgreement/{shortName}/{program}/{code}/",
-                    "oaf": grant_json["id"].split("|")[-1],
-                    "purl": grant_json.get("purl", "")
-                },
-                "internal_id": id_,
-                "program": grant_json["h2020programme"],
-                "remote_modified": 0,
-                "startdate": grant_json.get("startdate", ""),
-                "title": grant_json.get("title", ""),
-                "url": grant_json.get("url", ""),
+            "identifiers": {
+                "eurepo": "info:eu-repo/grantAgreement/{shortName}/{program}/{code}/",
+                "oaf": grant_json["id"].split("|")[-1],
+                "purl": grant_json.get("purl", "")
             },
-            "updated": datetime.isoformat(datetime.now())
+            "internal_id": id_,
+            "program": grant_json["h2020programme"],
+            "remote_modified": "",
+            "startdate": grant_json.get("startdate", ""),
+            "title": grant_json.get("title", ""),
+            "url": grant_json.get("url", ""),
         }
 
         return ret_json
