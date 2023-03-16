@@ -16,10 +16,15 @@
         "type": "keyword"
       },
       "title": {
-        "type": "text"
+        "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword"
+            }
+          }
       },
       "acronym": {
-        "type": "text"
+        "type": "keyword"
       },
       "startdate": {
         "type": "date",
@@ -44,10 +49,15 @@
             }
           },
           "name": {
-            "type": "text"
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword"
+              }
+            }
           },
           "acronyms": {
-            "type": "text"
+            "type": "keyword"
           },
           "country": {
             "type": "keyword"
@@ -67,14 +77,14 @@
         }
       },
       "program": {
-        "type": "text"
+        "type": "keyword"
       },
       "remote_modified": {
         "type": "date",
         "ignore_malformed": true
       },
       "url": {
-        "type": "text"
+        "type": "keyword"
       },
       "identifiers": {
         "type": "object",
@@ -101,6 +111,20 @@
             "path": "funder.doi"
           }
         ]
+      },
+      "_created": {
+        "type": "date",
+        "copy_to": "created"
+      },
+      "_updated": {
+        "type": "date",
+        "copy_to": "updated"
+      },
+      "created": {
+        "type": "date"
+      },
+      "updated": {
+        "type": "date"
       }
     }
   }

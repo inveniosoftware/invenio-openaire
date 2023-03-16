@@ -15,10 +15,15 @@
         }
       },
       "name": {
-        "type": "text"
+        "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword"
+              }
+            }
       },
       "acronyms": {
-        "type": "text"
+        "type": "keyword"
       },
       "country": {
         "type": "keyword"
@@ -47,6 +52,14 @@
         "type": "completion",
         "analyzer" : "standard",
         "search_analyzer" : "standard"
+      },
+      "_created": {
+        "type": "date",
+        "copy_to": "created"
+      },
+      "_updated": {
+        "type": "date",
+        "copy_to": "updated"
       }
     }
   }
