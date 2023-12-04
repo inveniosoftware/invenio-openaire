@@ -44,3 +44,20 @@ def test_loadgrants(script_info, es, funders):
     print(result.output)
     assert result.exit_code == 0
     assert PersistentIdentifier.query.count() == 46
+
+
+def test_new_loadgrants(script_info, es, funders):
+    """Test CLI for loading new grant format."""
+    # Get initial number of records
+    assert PersistentIdentifier.query.count() == 6
+    runner = CliRunner()
+    # Ingest new ones
+    result = runner.invoke(
+        openaire,
+        ['loadgrants', '--format', 'json',
+         '--source',
+         join(dirname(__file__), 'testdata/openaire_test.json')],
+        obj=script_info)
+    import ipdb; ipdb.set_trace()
+    print(result.output)
+    assert PersistentIdentifier.query.count() == 12

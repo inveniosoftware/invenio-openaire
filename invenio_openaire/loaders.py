@@ -22,6 +22,7 @@ loader also capable of fetching it from a remote location.
 
 from __future__ import absolute_import, print_function, unicode_literals
 
+import gzip
 import json
 import os
 import sqlite3
@@ -29,11 +30,14 @@ import xml.etree.ElementTree as ET
 from gzip import GzipFile
 
 import requests
+from datetime import datetime
 from flask import current_app
 from invenio_pidstore.errors import PersistentIdentifierError
 from invenio_pidstore.resolver import Resolver
 from invenio_records.api import Record
 from lxml import etree
+from os import listdir
+from os.path import isfile, join
 from sickle import Sickle
 from six import string_types, text_type
 from six.moves.urllib.parse import quote_plus
@@ -211,6 +215,36 @@ class BaseOAIRELoader(object):
         }
         return ret_json
 
+    def grantjson2json(self, grant_json):
+        """Convert OpenAIRE grant JSON into comptaible JSON."""
+        funder_doi = current_app.config["OPENAIRE_FIXED_FUNDERS"]['aka_________::AKA'].replace('http://dx.doi.org/', '')  # make this dynamic
+
+        grant_id = grant_json["code"]
+        id_ = f"{funder_doi}::{grant_id}"
+
+        ret_json = {
+            "$schema": "",  # self.schema_formatter.schema_url,
+            "acronym": grant_json.get("acronym", ""),
+            "code": grant_id,
+            "enddate": grant_json.get("enddate", ""),
+            "funder": {
+                "$ref": "http://dx.doi.org/{}".format(funder_doi)
+            },
+            "identifiers": {
+                "eurepo": "info:eu-repo/grantAgreement/{shortName}/{program}/{code}/",
+                "oaf": grant_json["id"].split("|")[-1],
+                "purl": grant_json.get("purl", "")
+            },
+            "internal_id": id_,
+            "program": grant_json["h2020programme"],
+            "remote_modified": "",
+            "startdate": grant_json.get("startdate", ""),
+            "title": grant_json.get("title", ""),
+            "url": grant_json.get("url", ""),
+        }
+
+        return ret_json
+
 
 class LocalOAIRELoader(BaseOAIRELoader):
     """Local OpenAIRE dataset loader.
@@ -275,6 +309,67 @@ class LocalOAIRELoader(BaseOAIRELoader):
                 data = json.loads(data)
             yield data
         self._disconnect()
+
+
+class LocalJSONOAIRELoader(BaseOAIRELoader):
+    """Local OpenAIRE dataset loader."""
+
+    def __init__(self, source=None, **kwargs):
+        """Init the loader for local database."""
+        super(LocalJSONOAIRELoader, self).__init__(
+            source,
+            **kwargs)
+
+    def extract_grants(self, source):
+        """Extract grants within a json lines file."""
+        if os.path.splitext(source)[1].lower() == '.gz':  # 1.
+            open_func = gzip.open
+        else:
+            open_func = open
+        with open_func(source, 'r') as fp:
+            json_list = list(fp)
+
+            for json_grant in json_list:
+                yield json.loads(json_grant)
+
+
+    def extract_fundings(self, grants):
+        """Extract fundings from a grant dumps."""
+        parsed_fundings = []
+
+        for grant in grants:
+            funding = grant["funding"]
+            if funding not in parsed_fundings:
+                parsed_fundings.append(funding)
+
+        return parsed_fundings
+
+    def extract_funders(self, fundings):
+        """Extract funders from fundings."""
+        parsed_funders = set()
+        unparsed_fundings = set()
+
+        for funding in fundings:
+            try:
+                funder = funding[0]['shortName']
+                if funder not in parsed_funders:
+                    parsed_funders.append(funder)
+
+            except Exception:
+                unparsed_fundings.append(funding)
+
+        return parsed_funders, unparsed_fundings
+
+    def iter_grants(self):
+        """Fetch records from the Zenodo local dump."""
+        # file_grants = self.extract_grants(self.source)
+        for grant in self.extract_grants(self.source):
+            try:
+                yield self.grantjson2json(grant)
+
+            except FunderNotFoundError as e:
+                current_app.logger.warning("Funder '{0}' not found.".format(
+                    e.funder_id))
 
 
 class RemoteOAIRELoader(BaseOAIRELoader):

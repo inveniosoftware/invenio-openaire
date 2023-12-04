@@ -16,7 +16,8 @@ import os
 import click
 from flask.cli import with_appcontext
 
-from invenio_openaire.loaders import LocalOAIRELoader, OAIREDumper
+from invenio_openaire.loaders import LocalOAIRELoader, OAIREDumper, \
+    LocalJSONOAIRELoader
 from invenio_openaire.tasks import harvest_all_openaire_projects, \
     harvest_fundref, harvest_openaire_projects, register_grant
 
@@ -46,6 +47,11 @@ def loadfunders(source=None):
                     resolve_path=True, exists=True),
     help="Local OpenAIRE SQLite database.")
 @click.option(
+    '--format', '-f',
+    type=str,
+    default='json',
+    help="Format of the source file to load.")
+@click.option(
     '--setspec', '-s',
     type=str,
     default=None,
@@ -56,7 +62,7 @@ def loadfunders(source=None):
     is_flag=True,
     help="Harvest all grants (default: False).")
 @with_appcontext
-def loadgrants(source=None, setspec=None, all_grants=False):
+def loadgrants(source=None, setspec=None, format=None, all_grants=False):
     """Harvest grants from OpenAIRE.
 
     :param source: Load the grants from a local sqlite db (offline).
@@ -65,6 +71,8 @@ def loadgrants(source=None, setspec=None, all_grants=False):
     :param setspec: Harvest specific set through OAI-PMH
         Creates a remote connection to OpenAIRE.
     :type setspec: str
+    :param format: str
+    :type format: Specify the grant dump's format.
     :param all_grants: Harvest all sets through OAI-PMH,
         as specified in the configuration OPENAIRE_GRANTS_SPEC. Sets are
         harvested sequentially in the order specified in the configuration.
@@ -79,14 +87,21 @@ def loadgrants(source=None, setspec=None, all_grants=False):
         click.echo("Remote grants loading sent to queue.")
         harvest_openaire_projects.delay(setspec=setspec)
     else:  # if source
-        loader = LocalOAIRELoader(source=source)
-        loader._connect()
-        cnt = loader._count()
-        click.echo("Sending grants to queue.")
-        with click.progressbar(loader.iter_grants(), length=cnt) as grants_bar:
+        if format == 'json':
+            click.echo("Loading grants from file.")
+            click.echo(source)
+            loader = LocalJSONOAIRELoader(source=source)
+            for grant_json in loader.iter_grants():
+                register_grant.si(grant_json).apply()
+        else:
+            loader = LocalOAIRELoader(source=source)
+            loader._connect()
+            cnt = loader._count()
+            click.echo("Sending grants to queue.")
+            with click.progressbar(loader.iter_grants(), length=cnt) as grants_bar:
 
-            for grant_json in grants_bar:
-                register_grant.delay(grant_json)
+                for grant_json in grants_bar:
+                    register_grant.delay(grant_json)
 
 
 @openaire.command()
